@@ -6,4 +6,4 @@ cache: pip
 
 install: "python setup.py develop"
 
-script: "./run_tests.sh"
+script: "python -m unittest discover -v"
