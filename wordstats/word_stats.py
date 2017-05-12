@@ -1,6 +1,5 @@
 # Lazy initialized object
-from loading_from_hermit import load_language_from_hermit
-from wordstats.word_info import UnknownWordInfo
+from .loading_from_hermit import load_language_from_hermit
 
 
 class Word(object):
@@ -16,7 +15,7 @@ class Word(object):
     @classmethod
     def stats(cls, word, language):
 
-        if not cls.stats_dict.has_key(language):
+        if language not in cls.stats_dict:
             cls.stats_dict[language] = load_language_from_hermit(language)
 
         return cls.stats_dict[language][word]

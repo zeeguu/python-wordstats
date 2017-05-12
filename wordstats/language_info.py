@@ -32,13 +32,13 @@ class LanguageInfo(object):
 
         # TODO: think whether we want to care about the lowercase or not. For now, we don't
         word = word.lower()
-        if self.word_info_dict.has_key(word):
+        if word in self.word_info_dict:
             return self.word_info_dict[word]
         else:
             return UnknownWordInfo()
 
     def all_words(self):
-        return self.word_info_dict.keys()
+        return list(self.word_info_dict.keys())
 
     def __getitem__(self, key):
         return self.get(key)
@@ -83,7 +83,7 @@ class LanguageInfo(object):
 
             if word_rank <= MAX_WORDS:
 
-                if not new_registry.word_info_dict.has_key(word.lower()):
+                if word.lower() not in new_registry.word_info_dict:
                     r = WordInfo(
                         word.lower(),
                         lang_code,
@@ -130,15 +130,15 @@ class LanguageInfo(object):
             words.delete(synchronize_session=False)
 
         clear_corresponding_entries_in_db(self)
-        for word_info in self.word_info_dict.values():
+        for word_info in list(self.word_info_dict.values()):
             BaseService.session.add(word_info)
         BaseService.session.commit()
 
     # Everything that follows is private
     def print_load_stats(self, a, b):
         memory_footprint = total_size(self.word_info_dict, set()) / 1024 / 1024
-        print ("Elapsed time to load the {0} data: {1} ({2} entries)".format(self.language_id, b - a, len(self.word_info_dict)))
-        print ("Required memory for the {0} registry: {1}MB".format(self.language_id, memory_footprint))
+        print(("Elapsed time to load the {0} data: {1} ({2} entries)".format(self.language_id, b - a, len(self.word_info_dict))))
+        print(("Required memory for the {0} registry: {1}MB".format(self.language_id, memory_footprint)))
 
     @classmethod
     def profile_load_from_db(cls, language_id, output = False):

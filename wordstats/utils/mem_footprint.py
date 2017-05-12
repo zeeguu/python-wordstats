@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 from sys import getsizeof, stderr
 from itertools import chain
 from collections import deque
@@ -19,7 +19,7 @@ def total_size(o, handlers={}, verbose=False):
                     OtherContainerClass: OtherContainerClass.get_elements}
 
     """
-    dict_handler = lambda d: chain.from_iterable(d.items())
+    dict_handler = lambda d: chain.from_iterable(list(d.items()))
     all_handlers = {tuple: iter,
                     list: iter,
                     deque: iter,
@@ -40,7 +40,7 @@ def total_size(o, handlers={}, verbose=False):
         if verbose:
             print(s, type(o), repr(o), file=stderr)
 
-        for typ, handler in all_handlers.items():
+        for typ, handler in list(all_handlers.items()):
             if isinstance(o, typ):
                 s += sum(map(sizeof, handler(o)))
                 break
