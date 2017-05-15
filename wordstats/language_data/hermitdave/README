@@ -34,6 +34,6 @@ Example:
 5. Finally, once the code is executed the it will required you an input. It has to be the freq xml file
 
 
-Improves we want to do:
+Improvements we want to do:
 
 Choose directly the .txt file with the freq and convert it in the needed xml file with a python script so that there is no need to add the file manually.
