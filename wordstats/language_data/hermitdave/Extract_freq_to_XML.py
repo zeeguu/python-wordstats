@@ -3,8 +3,9 @@ from files import dict_to_xml_file
 
 LANG = ''
 PATH_TXT_FILE = ''
-LANG_ABBREVIATIONS = {'da':'Danish', 'de':'German', 'en':'English', 'es':'Spanish', 'fr':'French',
-                      'it': 'Italian', 'nl':'Dutch', 'no':'Norwegian', 'pt':'Portugues', 'ro':'Romanian'}
+LANG_ABBREVIATIONS = {'da': 'Danish', 'de': 'German', 'en': 'English', 'es': 'Spanish', 'fr': 'French',
+                      'it': 'Italian', 'nl': 'Dutch', 'no': 'Norwegian', 'pt': 'Portugues', 'ro': 'Romanian'}
+
 
 def main():
     global LANG, PATH_TXT_FILE, LANG_ABBREVIATIONS
@@ -22,7 +23,7 @@ def main():
             freq_dict[word.split()[0]] = freq_position
             freq_position += 1
 
-    dict_to_xml_file(freq_dict, LANG_ABBREVIATIONS[LANG] + 'WordFrequencies' , os.path.join('Frequency_lists/'), 1)
+    dict_to_xml_file(freq_dict, LANG_ABBREVIATIONS[LANG] + 'WordFrequencies', os.path.join('Frequency_lists/'), 1)
 
 
 if __name__ == "__main__":
