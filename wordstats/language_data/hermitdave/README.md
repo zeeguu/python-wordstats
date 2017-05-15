@@ -1,8 +1,10 @@
+#Cleaning process
+
 ###Cleaning_words.py
 
 If it is required to add words of a new language it is needed to follow the next steps:
 
-1.Download the aspell dictionary of that language (http://ftp.gnu.org/gnu/aspell/dict/) and follow the instructions. Basically you have to download the .tar.bz2 file (the 5 is the newest) and then:
+1. Download the aspell dictionary of that language (http://ftp.gnu.org/gnu/aspell/dict/) and follow the instructions. Basically you have to download the .tar.bz2 file (the 5 is the newest) and then:
 	-Unzip the folder
 	-Go with the terminal to that folder.
 	-Execute ./configure
@@ -31,6 +33,6 @@ Example:
 It is only necessary to introduce the language code of the language you want to convert from txt to XML.
 If you want to add a new language that doesn't have a freq list. It will be needed to add:
 
-	1. That file in /2016/'language_code'/'language_code'50k.txt
+1. That file in /2016/'language_code'/'language_code'50k.txt
 
-	2. In the .py file, add in the global variable LANG_ABBREVIATIONS, the language code as a key and the language in English as the value.
+2. In the .py file, add in the global variable LANG_ABBREVIATIONS, the language code as a key and the language in English as the value.
