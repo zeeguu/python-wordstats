@@ -1,4 +1,4 @@
-#Cleaning_words.py
+###Cleaning_words.py
 
 If it is required to add words of a new language it is needed to follow the next steps:
 
@@ -26,7 +26,7 @@ Example:
 5. Finally, once the code is executed the it will required you an input. It has to be the freq xml file
 
 
-#Extract_freq_to_XML.py
+###Extract_freq_to_XML.py
 
 It is only necessary to introduce the language code of the language you want to convert from txt to XML.
 If you want to add a new language that doesn't have a freq list. It will be needed to add:
