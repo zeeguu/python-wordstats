@@ -55,7 +55,7 @@ def main():
 
     FREQ_WORDS_PATH = str(Path(__file__).parent.parent.parent) + '/hermitdave/2016/' + lang2clean + '/' + freq_file
 
-    words2clean=txt_to_dict(FREQ_WORDS_PATH)
+    words2clean = txt_to_dict(FREQ_WORDS_PATH)
 
     clean_words = set()
 
