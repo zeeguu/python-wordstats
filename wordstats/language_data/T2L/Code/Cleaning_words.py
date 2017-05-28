@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 FREQ_WORDS_PATH = ''

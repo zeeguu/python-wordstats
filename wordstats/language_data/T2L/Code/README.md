@@ -20,3 +20,28 @@ NOTE: If there is no freq list inside /hermitdave/2016/ then it will be needed t
 NOTE 2: If there are changes in the structure of the names or the structure of directories, the code may need changes.
 
 
+### Translation.py and Query.py
+
+To compute the translations Glosbe is used. It is needed to do it in batches because Glosbe detects that you are a robot. To solve this problem it will be needed to enter in their website (https://es.glosbe.com) and look for a word.The interval you can translate is approximately 700 words (e.g. if you want the first 700 words you will have to modify BEGIN to 0 and BATCH to 700). 
+
+The code still needs some modifications like for example, if a word returns no translation, do not include it in the txt file.
+
+
+
+### Python version
+The python version used to make these codes is 3.5.
+
+The following libraries should be installed in order to make it work. 
+First, you need to install pip (installing pip first is the easiest way to install everything else I think):
+
+OS X -> sudo easy_install pip
+Linux -> sudo apt-get install python-pip
+
+Then, you can execute this commands:
+
+python3.5 -m pip install requests
+python3.5 -m pip install beautifulsoup4
+python3.5 -m pip install dicttoxml
+python3.5 -m pip install xmltodict (optional, in case you want to read a xml file back to a dictionary)
+
+NOTE: Replace 3.5 with your python version accordingly. It should be at least version 3 or the code will not work.
