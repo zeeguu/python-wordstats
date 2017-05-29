@@ -26,7 +26,7 @@ To compute the translations Glosbe is used. It is needed to do it in batches bec
 
 The code still needs some modifications like for example, if a word returns no translation, do not include it in the txt file.
 
-
+NOTE: If there are changes in the structure of the names or the structure of directories, the code may need changes.
 
 ### Python version
 The python version used to make these codes is 3.5.
