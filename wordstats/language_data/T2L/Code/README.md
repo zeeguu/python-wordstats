@@ -40,8 +40,7 @@ Linux -> sudo apt-get install python-pip
 Then, you can execute this commands:
 
 python3.5 -m pip install requests
+
 python3.5 -m pip install beautifulsoup4
-python3.5 -m pip install dicttoxml
-python3.5 -m pip install xmltodict (optional, in case you want to read a xml file back to a dictionary)
 
 NOTE: Replace 3.5 with your python version accordingly. It should be at least version 3 or the code will not work.
