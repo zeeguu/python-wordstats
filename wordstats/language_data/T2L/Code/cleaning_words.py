@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 
 FREQ_WORDS_PATH = ''
 
@@ -6,18 +7,7 @@ DICTIONARY_PATH = ''
 
 CLEAN_WORDS_PATH = ''
 
-LANG = ''
-
-
-def choose_language(lang_code):
-    global LANG
-
-    if lang_code == 'es':
-        LANG = 'Spanish'
-    elif lang_code == 'nl':
-        LANG = 'Dutch'
-    elif lang_code == 'de':
-        LANG = 'German'
+LANG_CODE = ''
 
 
 def dict_to_txt(dic, path):
@@ -39,20 +29,23 @@ def txt_to_dict(path):
 
 
 def main():
-    global DICTIONARY_PATH, FREQ_WORDS_PATH, CLEAN_WORDS_PATH
+    global DICTIONARY_PATH, FREQ_WORDS_PATH, CLEAN_WORDS_PATH, LANG_CODE
 
-    lang2clean = input('Please, enter the language code you want to obtain clean words:\n')
-    dictionary = lang2clean + '.txt'
-    freq_file = lang2clean + '_50k.txt'
-    choose_language(lang2clean)
+    if len(sys.argv) == 2:
+        LANG_CODE = str(sys.argv[1])
+    else:
+        LANG_CODE = input('Please, enter the language code you want to obtain clean words:\n')
 
-    DICTIONARY_PATH = str(Path(__file__).parent.parent) + '/Dictionaries/' + dictionary
+    dictionary = LANG_CODE + '.txt'
+    freq_file = LANG_CODE + '_50k.txt'
+
+    DICTIONARY_PATH = str(Path(__file__).parent.parent) + '/Data/Dictionaries/' + dictionary
 
     with open(DICTIONARY_PATH, 'r') as f:
         dictionary_words = [x.strip() for x in f.readlines()]
     f.close()
 
-    FREQ_WORDS_PATH = str(Path(__file__).parent.parent.parent) + '/hermitdave/2016/' + lang2clean + '/' + freq_file
+    FREQ_WORDS_PATH = str(Path(__file__).parent.parent.parent) + '/hermitdave/2016/' + LANG_CODE + '/' + freq_file
 
     words2clean = txt_to_dict(FREQ_WORDS_PATH)
 
@@ -63,7 +56,7 @@ def main():
             if not word[0].isupper():
                 clean_words.add(word)
 
-    CLEAN_WORDS_PATH = str(Path(__file__).parent.parent) + '/Words/' + LANG + '.txt'
+    CLEAN_WORDS_PATH = str(Path(__file__).parent.parent) + '/Data/Words/' + LANG_CODE + '.txt'
 
     dict_to_txt(clean_words, CLEAN_WORDS_PATH)
 

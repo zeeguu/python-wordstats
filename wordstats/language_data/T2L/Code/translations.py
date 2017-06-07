@@ -1,6 +1,8 @@
 from query import query_site
 from pathlib import Path
-
+import time
+import math
+import random
 """
 
 Class that calls a translation API to translate words and stores the
@@ -10,22 +12,44 @@ translations as an xml file
 
 # First word from which to start translating
 BEGIN = 0
-# How many words to translate before storing them (the last one is not included)
-BATCH = 750
 
-LANG = "Spanish"
-FROM = "es"
-DEST = "en"
+# How many words to translate before storing them (the last one is not included)
+BATCH = 700
+
+FROM_CODE = "fr"
+DEST_CODE = "en"
+
+#Counts the seconds until it reach one hour, then it is added 1 hour to HOURS_COUNTER
+TIMER = 0
+HOURS_COUNTER = 0
 
 # Path of the txt file with the words
-PATH_INPUT_WORDS = str(Path(__file__).parent.parent) + '/Words/' + LANG + '.txt'
+PATH_INPUT_WORDS = str(Path(__file__).parent.parent) + '/Data/Words/' + FROM_CODE + '.txt'
 
 # Path of the txt file with the translations
-PATH_OUTPUT_TRANSLATIONS = str(Path(__file__).parent.parent) + '/Translations/' + LANG + "-English.txt"
+PATH_OUTPUT_TRANSLATIONS = str(Path(__file__).parent.parent) + '/Data/Translations/' + FROM_CODE + "-" + DEST_CODE + ".txt"
 
 
 # Glosbe API parameters
 BASE_GLOSBE_URL = "https://glosbe.com/gapi/translate"
+def sleep_between_queries():
+    global  TIMER, HOURS_COUNTER
+
+    sleeping_time_query = math.ceil(3600/BATCH)+random.randint(1,10)
+
+    '''if TIMER > 3600:
+        sleeping_time_hour = (15*60)*(HOURS_COUNTER+1)+random.randint(500,1000)
+
+        HOURS_COUNTER += 1
+        TIMER = 0
+
+        print ('Sleep for ' + str(sleeping_time_hour) + ' seconds')
+        time.sleep(sleeping_time_hour)
+    '''
+
+    time.sleep(sleeping_time_query)
+    TIMER += sleeping_time_query
+
 
 
 def query_glosbe_by_word(url, word, from_lang, dest_lang, fmt="json"):
@@ -61,7 +85,7 @@ def parse_glosbe_result(input):
     for res in result:
         if "phrase" in res:
             res = res["phrase"]
-            if res["language"] == DEST:
+            if res["language"] == DEST_CODE:
                 list.append(res["text"])
 
     return list
@@ -80,13 +104,11 @@ def translate(word, from_lang, dest_lang):
     return parse_glosbe_result(query_glosbe_by_word(BASE_GLOSBE_URL, word, from_lang, dest_lang))
 
 
-
 def main():
     global PATH_INPUT_WORDS, PATH_OUTPUT_TRANSLATIONS, BEGIN, BATCH
 
     words = []
     file = open(PATH_INPUT_WORDS)
-
 
     for line in file:
         words.append(line.rstrip('\n'))
@@ -99,31 +121,24 @@ def main():
 
             count += 1
 
-            if count < BEGIN:
+            #sleep_between_queries()
+            meanings = translate(w, FROM_CODE, DEST_CODE)
+
+            if len(meanings) < 3:
                 continue
 
-            if count < BEGIN + BATCH:
+            file.write(str(w))
+            file.write("\n\t")
 
-
-                meanings = translate(w, FROM, DEST)
-
-                if len(meanings) == 0:
-                    continue
-
-                file.write(str(w))
+            temp = 0
+            for meaning in meanings:
+                if temp == 3:
+                    break
+                file.write(meaning)
                 file.write("\n\t")
-
-
-                temp = 0
-                for ceva in meanings:
-                    if temp == 3:
-                        break
-                    file.write(ceva)
-                    file.write("\n\t")
-                    temp += 1
-                file.write("\n\n")
-                print(count)
-
+                temp += 1
+            file.write("\n\n")
+            print(count)
 
 
 if __name__ == "__main__":

@@ -3,12 +3,19 @@
 If it is required to add words of a new language it is needed to follow the next steps:
 
 1. Download the aspell dictionary of that language (http://ftp.gnu.org/gnu/aspell/dict/) and follow the instructions. Basically you have to download the .tar.bz2 file (the 5 is the newest) and then:
+
 	-Unzip the folder
+
 	-Go with the terminal to that folder.
+
 	-Execute ./configure
+
 	-Execute make
+
 	-Execute make install
+
 	-Execute preunzip 'lang'.cwl (e.g: es.cwl)
+
 You will obtain a .uw file with the dictionnary.
 
 2. It is needed to create a new .txt file and copy the dictionary. Python does not recognize .uw files. After that move the dictionary to the Dictionary folder.
