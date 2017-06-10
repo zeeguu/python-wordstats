@@ -1,22 +1,46 @@
 from pathlib import Path
 import sys
 
+"""
+
+Class that with an aspell dictionary, will clean a freq word list of a language
+from anglicisms or words that doesn't exist
+
+"""
+
+# Freq list file path
 FREQ_WORDS_PATH = ''
 
+# Dictionary file path
 DICTIONARY_PATH = ''
 
+# Clean words list file path
 CLEAN_WORDS_PATH = ''
 
+# Code of the language we want to clean the words
 LANG_CODE = ''
 
 
-def dict_to_txt(dic, path):
+def dict_to_txt(words, path):
+    """Write a dic in a txt file
+
+        :param words:          -- dic with the cleaning words we want to write
+        :param path:         -- path where we want to store the words
+
+    """
+
     with open(path, 'w') as file:
-        for line in dic:
+        for line in words:
             file.write(line + '\n')
 
 
 def txt_to_dict(path):
+    """Write a dic in a txt file
+            :param path:                 -- path where the file of freq list is
+            :return words2clean:         -- dict with the freq words we want to write
+
+    """
+
     freq_position = 1
     words2clean = dict()
 

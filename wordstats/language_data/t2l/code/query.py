@@ -22,6 +22,7 @@ def query_site(url, params, fmt=JSON):
     :return:        -- a format object with the response to the query
 
     :raises:        -- HTTPError if the HTTP request returned an unsuccessful status code.
+    :raises:        -- ConnectionError if you disconnect the computer from the net in the middle of the process
 
     """
 
@@ -38,20 +39,12 @@ def query_site(url, params, fmt=JSON):
             HTML: __get_html
         }[fmt](r)
 
-    except ConnectionAbortedError:
-        print("There was an unexpected exception because the internet connection was cut. After 100 seconds function will be called again\n")
+    except ConnectionError:
+        print("There was an unexpected exception because the internet connection was cut. "
+              "After 100 seconds function will be called again\n")
         time.sleep(100)
         query_site(url, params, fmt=JSON)
-    '''
-    if r.status_code == requests.codes.ok:
-        return {
-            JSON: __get_json,
-            HTML: __get_html
-        }[fmt](r)
-    else:
-        print("Request limit reached!\n")
-        sys.exit(0)
-    '''
+
 
 def __get_json(response):
     return response.json()

@@ -3,10 +3,11 @@ from pathlib import Path
 import time
 import math
 import random
+
 """
 
 Class that calls a translation API to translate words and stores the
-translations as an xml file
+translations as a txt file
 
 """
 
@@ -16,40 +17,18 @@ BEGIN = 0
 # How many words to translate before storing them (the last one is not included)
 BATCH = 700
 
-FROM_CODE = "fr"
+FROM_CODE = "nl"
 DEST_CODE = "en"
-
-#Counts the seconds until it reach one hour, then it is added 1 hour to HOURS_COUNTER
-TIMER = 0
-HOURS_COUNTER = 0
 
 # Path of the txt file with the words
 PATH_INPUT_WORDS = str(Path(__file__).parent.parent) + '/Data/Words/' + FROM_CODE + '.txt'
 
 # Path of the txt file with the translations
-PATH_OUTPUT_TRANSLATIONS = str(Path(__file__).parent.parent) + '/Data/Translations/' + FROM_CODE + "-" + DEST_CODE + ".txt"
-
+PATH_OUTPUT_TRANSLATIONS = str(Path(__file__).parent.parent) + '/Data/Translations/' + FROM_CODE + "-" + \
+                           DEST_CODE + ".txt"
 
 # Glosbe API parameters
 BASE_GLOSBE_URL = "https://glosbe.com/gapi/translate"
-def sleep_between_queries():
-    global  TIMER, HOURS_COUNTER
-
-    sleeping_time_query = math.ceil(3600/BATCH)+random.randint(1,10)
-
-    '''if TIMER > 3600:
-        sleeping_time_hour = (15*60)*(HOURS_COUNTER+1)+random.randint(500,1000)
-
-        HOURS_COUNTER += 1
-        TIMER = 0
-
-        print ('Sleep for ' + str(sleeping_time_hour) + ' seconds')
-        time.sleep(sleeping_time_hour)
-    '''
-
-    time.sleep(sleeping_time_query)
-    TIMER += sleeping_time_query
-
 
 
 def query_glosbe_by_word(url, word, from_lang, dest_lang, fmt="json"):
@@ -121,7 +100,6 @@ def main():
 
             count += 1
 
-            #sleep_between_queries()
             meanings = translate(w, FROM_CODE, DEST_CODE)
 
             if len(meanings) < 3:
