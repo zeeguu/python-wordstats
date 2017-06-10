@@ -16,7 +16,9 @@ If it is required to add words of a new language it is needed to follow the next
 
 	-Execute preunzip 'lang'.cwl (e.g: es.cwl)
 
-You will obtain a .uw file with the dictionnary.
+You will obtain a .wl file with the dictionnary.
+
+However there will be a script which will do this automatically, but if the result is not what you expect, then you can do it manually.
 
 2. It is needed to create a new .txt file and copy the dictionary. Python does not recognize .uw files. After that move the dictionary to the Dictionary folder.
 
