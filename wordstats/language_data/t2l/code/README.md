@@ -29,9 +29,11 @@ NOTE 2: If there are changes in the structure of the names or the structure of d
 
 ### Translation.py and Query.py
 
-To compute the translations Glosbe is used. It is needed to do it in batches because Glosbe detects that you are a robot. To solve this problem it will be needed to enter in their website (https://es.glosbe.com) and look for a word.The interval you can translate is approximately 700 words (e.g. if you want the first 700 words you will have to modify BEGIN to 0 and BATCH to 700). 
+To compute the translations Glosbe is used. After do some request (around 800 in general) the IP will be blocked and the program will be sleeping until it is unblocked. After that it will continue.
 
-The code still needs some modifications like for example, if a word returns no translation, do not include it in the txt file.
+To change the orig language and the translation language it is needed to change the variables FROM_CODE and DEST_CODE to the wanted languages codes.
+
+IMPORTANT: Once the IP is blocked it is needed to go to the glosbe web-site, do a query and check that you are human. Once this is done, the IP will be unblocked and the program will continue running
 
 NOTE: If there are changes in the structure of the names or the structure of directories, the code may need changes.
 
