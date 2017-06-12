@@ -54259,7 +54259,10 @@ depressiv
 löscht
 	quenches
 	deleted
-	destroyswestlich
+	destroys
+
+
+westlich
 	west
 	western
 	westerly
