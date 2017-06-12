@@ -1,11 +1,15 @@
 import unittest
 from pathlib import Path
-import logging
-import sys
+import math
 
 # Change the path to try with new  files the different tests
-PATH_TRANSLATION_FILE = str(Path(__file__).parent.parent.parent) + "/data/translations/nl-en.txt"
+ORIG_LANG_CODE = 'es'
+DEST_LANG_CODE = 'en'
 
+PATH_TRANSLATION_FILE = str(Path(__file__).parent.parent.parent) + "/data/translations/" + ORIG_LANG_CODE + "-" + \
+                        DEST_LANG_CODE + ".txt"
+
+PATH_DIFFICULTY_FILE = str(Path(__file__).parent.parent.parent) + "/data/"
 
 class TestTranslationMethods(unittest.TestCase):
 
@@ -27,36 +31,71 @@ class TestTranslationMethods(unittest.TestCase):
         trans_counter = 0
         test_done = False
 
-        stream_handler = logging.StreamHandler(sys.stdout)
-
-        logger = logging.getLogger()
-        logger.level = logging.DEBUG
-        logger.addHandler(stream_handler)
-
         with open(PATH_TRANSLATION_FILE, 'r') as f:
 
             for line in f.readlines():
-                if word_line_counter > 0:
 
-                    if line.strip() != '':
-                        trans_counter += 1
+                if word_line_counter == 0 and line.strip() != '':
 
-                    elif line.strip() == '' and test_done is False:
-
-                        self.assertEqual(trans_counter, 3, 'Failure in word: ' + word)
-
-                        trans_counter = 0
-                        test_done = True
-
-                    else:
-                        word_line_counter = -1
-
-                else:
+                    test_done = False
                     word = line.strip()
+                    word_line_counter += 1
+
+                elif  word_line_counter > 0 and line.strip() != '':
+                        trans_counter += 1
+                        word_line_counter += 1
+
+                elif test_done is False and line.strip() == '':
+
+                    self.assertEqual(trans_counter, 3, 'Failure in word: ' + word)
+
+                    trans_counter = 0
+                    test_done = True
+                    word_line_counter = 0
+
+
+
+
+
+    def test_trans_diff_correlation(self):
+
+        """This test checks if, for each word in the translation txt files with a translation which is spelt in
+        both languages (orig and dest) in the same way, has a 0 difficulty in the difficulty txt file of the orig
+        language
+
+
+        diff_words = dict()
+
+        with open(PATH_DIFFICULTY_FILE, 'r') as f:
+            for word_diff in f.readlines():
+                diff_words[word_diff.split(0)] = word_diff.split(1)
+
+        with open(PATH_TRANSLATION_FILE, 'r') as f:
+
+            word_line_counter = 0
+
+            for line in f.readlines():
+
+                if word_line_counter == 0 and line.strip() != '':
+                    word = line.strip()
+                    difficulty = math.inf
                     test_done = False
 
-                word_line_counter += 1
+                    word_line_counter += 1
 
+                elif word_line_counter > 0 and line.strip() != '':
+                    if word == line.strip():
+                        difficulty = 0
+
+                    word_line_counter += 1
+
+                elif test_done is False and difficulty == 0:
+
+                    self.assertEqual(difficulty, word_diff[word], 'Failure in word: ' + word)
+
+                    test_done = True
+                    word_line_counter = 0
+         """
 
 if __name__ == '__main__':
     unittest.main()
