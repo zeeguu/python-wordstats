@@ -63,7 +63,7 @@ def main():
     dictionary = LANG_CODE + '.txt'
     freq_file = LANG_CODE + '_50k.txt'
 
-    DICTIONARY_PATH = str(Path(__file__).parent.parent) + '/Data/Dictionaries/' + dictionary
+    DICTIONARY_PATH = str(Path(__file__).parent.parent) + '/data/dictionaries/' + dictionary
 
     with open(DICTIONARY_PATH, 'r') as f:
         dictionary_words = [x.strip() for x in f.readlines()]
@@ -80,7 +80,7 @@ def main():
             if not word[0].isupper():
                 clean_words.add(word)
 
-    CLEAN_WORDS_PATH = str(Path(__file__).parent.parent) + '/Data/Words/' + LANG_CODE + '.txt'
+    CLEAN_WORDS_PATH = str(Path(__file__).parent.parent) + '/data/words/' + LANG_CODE + '.txt'
 
     dict_to_txt(clean_words, CLEAN_WORDS_PATH)
 

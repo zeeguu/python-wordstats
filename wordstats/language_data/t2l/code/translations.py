@@ -21,10 +21,10 @@ FROM_CODE = "nl"
 DEST_CODE = "en"
 
 # Path of the txt file with the words
-PATH_INPUT_WORDS = str(Path(__file__).parent.parent) + '/Data/Words/' + FROM_CODE + '.txt'
+PATH_INPUT_WORDS = str(Path(__file__).parent.parent) + '/data/words/' + FROM_CODE + '.txt'
 
 # Path of the txt file with the translations
-PATH_OUTPUT_TRANSLATIONS = str(Path(__file__).parent.parent) + '/Data/Translations/' + FROM_CODE + "-" + \
+PATH_OUTPUT_TRANSLATIONS = str(Path(__file__).parent.parent) + "/data/translations/" + FROM_CODE + "-" + \
                            DEST_CODE + ".txt"
 
 # Glosbe API parameters
