@@ -1,4 +1,4 @@
-### Cleaning_words.py
+### cleaning_words.py
 
 If it is required to add words of a new language it is needed to follow the next steps:
 
@@ -29,7 +29,7 @@ NOTE: If there is no freq list inside /hermitdave/2016/ then it will be needed t
 NOTE 2: If there are changes in the structure of the names or the structure of directories, the code may need changes.
 
 
-### Translation.py and Query.py
+### translation.py and query.py
 
 To compute the translations Glosbe is used. After do some request (around 800 in general) the IP will be blocked and the program will be sleeping until it is unblocked. After that it will continue.
 
@@ -38,6 +38,11 @@ To change the orig language and the translation language it is needed to change 
 IMPORTANT: Once the IP is blocked it is needed to go to the glosbe web-site, do a query and check that you are human. Once this is done, the IP will be unblocked and the program will continue running
 
 NOTE: If there are changes in the structure of the names or the structure of directories, the code may need changes.
+
+
+### getDictonary.sh, languagelist.awk and tarselect.awk
+
+These files form the script to download automatically the dictionary the user wants and it is put in the dictionaries folder directly. It is only needed to run the .sh file and then, there will appear the neccessary instructions.
 
 ### Python version
 The python version used to make these codes is 3.5.
