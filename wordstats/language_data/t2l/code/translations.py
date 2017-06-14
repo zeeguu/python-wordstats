@@ -1,28 +1,31 @@
 from query import query_site
 from pathlib import Path
+import time
+import math
+import random
 
 """
 
 Class that calls a translation API to translate words and stores the
-translations as an xml file
+translations as a txt file
 
 """
 
 # First word from which to start translating
 BEGIN = 0
-# How many words to translate before storing them (the last one is not included)
-BATCH = 750
 
-LANG = "Spanish"
-FROM = "es"
-DEST = "en"
+# How many words to translate before storing them (the last one is not included)
+BATCH = 700
+
+FROM_CODE = "nl"
+DEST_CODE = "en"
 
 # Path of the txt file with the words
-PATH_INPUT_WORDS = str(Path(__file__).parent.parent) + '/Words/' + LANG + '.txt'
+PATH_INPUT_WORDS = str(Path(__file__).parent.parent) + '/data/words/' + FROM_CODE + '.txt'
 
 # Path of the txt file with the translations
-PATH_OUTPUT_TRANSLATIONS = str(Path(__file__).parent.parent) + '/Translations/' + LANG + "-English.txt"
-
+PATH_OUTPUT_TRANSLATIONS = str(Path(__file__).parent.parent) + "/data/translations/" + FROM_CODE + "-" + \
+                           DEST_CODE + ".txt"
 
 # Glosbe API parameters
 BASE_GLOSBE_URL = "https://glosbe.com/gapi/translate"
@@ -61,7 +64,7 @@ def parse_glosbe_result(input):
     for res in result:
         if "phrase" in res:
             res = res["phrase"]
-            if res["language"] == DEST:
+            if res["language"] == DEST_CODE:
                 list.append(res["text"])
 
     return list
@@ -80,13 +83,11 @@ def translate(word, from_lang, dest_lang):
     return parse_glosbe_result(query_glosbe_by_word(BASE_GLOSBE_URL, word, from_lang, dest_lang))
 
 
-
 def main():
     global PATH_INPUT_WORDS, PATH_OUTPUT_TRANSLATIONS, BEGIN, BATCH
 
     words = []
     file = open(PATH_INPUT_WORDS)
-
 
     for line in file:
         words.append(line.rstrip('\n'))
@@ -99,31 +100,23 @@ def main():
 
             count += 1
 
-            if count < BEGIN:
+            meanings = translate(w, FROM_CODE, DEST_CODE)
+
+            if len(meanings) < 3:
                 continue
 
-            if count < BEGIN + BATCH:
+            file.write(str(w))
+            file.write("\n\t")
 
-
-                meanings = translate(w, FROM, DEST)
-
-                if len(meanings) == 0:
-                    continue
-
-                file.write(str(w))
+            temp = 0
+            for meaning in meanings:
+                if temp == 3:
+                    break
+                file.write(meaning)
                 file.write("\n\t")
-
-
-                temp = 0
-                for ceva in meanings:
-                    if temp == 3:
-                        break
-                    file.write(ceva)
-                    file.write("\n\t")
-                    temp += 1
-                file.write("\n\n")
-                print(count)
-
+                temp += 1
+            file.write("\n\n")
+            print(count)
 
 
 if __name__ == "__main__":
