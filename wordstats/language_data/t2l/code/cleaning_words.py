@@ -1,4 +1,3 @@
-from pathlib import Path
 import sys
 
 """
@@ -7,6 +6,8 @@ Class that with an aspell dictionary, will clean a freq word list of a language
 from anglicisms or words that doesn't exist
 
 """
+
+#Next paths are filled in main so there is no need to change anything in the variables
 
 # Freq list file path
 FREQ_WORDS_PATH = ''
@@ -63,13 +64,13 @@ def main():
     dictionary = LANG_CODE + '.txt'
     freq_file = LANG_CODE + '_50k.txt'
 
-    DICTIONARY_PATH = str(Path(__file__).parent.parent) + '/data/dictionaries/' + dictionary
+    DICTIONARY_PATH = '../data/dictionaries/' + dictionary
 
     with open(DICTIONARY_PATH, 'r') as f:
         dictionary_words = [x.strip() for x in f.readlines()]
     f.close()
 
-    FREQ_WORDS_PATH = str(Path(__file__).parent.parent.parent) + '/hermitdave/2016/' + LANG_CODE + '/' + freq_file
+    FREQ_WORDS_PATH = '../../hermitdave/2016/' + LANG_CODE + '/' + freq_file
 
     words2clean = txt_to_dict(FREQ_WORDS_PATH)
 
@@ -80,7 +81,7 @@ def main():
             if not word[0].isupper():
                 clean_words.add(word)
 
-    CLEAN_WORDS_PATH = str(Path(__file__).parent.parent) + '/data/words/' + LANG_CODE + '.txt'
+    CLEAN_WORDS_PATH = '../data/words/' + LANG_CODE + '.txt'
 
     dict_to_txt(clean_words, CLEAN_WORDS_PATH)
 

@@ -1,15 +1,13 @@
 import unittest
-from pathlib import Path
-import math
 
 # Change the path to try with new  files the different tests
 ORIG_LANG_CODE = 'es'
 DEST_LANG_CODE = 'en'
 
-PATH_TRANSLATION_FILE = str(Path(__file__).parent.parent.parent) + "/data/translations/" + ORIG_LANG_CODE + "-" + \
-                        DEST_LANG_CODE + ".txt"
+PATH_TRANSLATION_FILE = '../../data/translations/' + ORIG_LANG_CODE + '-' + \
+                        DEST_LANG_CODE + '.txt'
 
-PATH_DIFFICULTY_FILE = str(Path(__file__).parent.parent.parent) + "/data/"
+PATH_DIFFICULTY_FILE = './data/'
 
 class TestTranslationMethods(unittest.TestCase):
 

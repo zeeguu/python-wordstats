@@ -1,8 +1,5 @@
 from query import query_site
-from pathlib import Path
-import time
-import math
-import random
+
 
 """
 
@@ -18,14 +15,14 @@ BEGIN = 0
 BATCH = 700
 
 FROM_CODE = "nl"
-DEST_CODE = "en"
+DEST_CODE = "es"
 
 # Path of the txt file with the words
-PATH_INPUT_WORDS = str(Path(__file__).parent.parent) + '/data/words/' + FROM_CODE + '.txt'
+PATH_INPUT_WORDS = '../data/words/' + FROM_CODE + '.txt'
 
 # Path of the txt file with the translations
-PATH_OUTPUT_TRANSLATIONS = str(Path(__file__).parent.parent) + "/data/translations/" + FROM_CODE + "-" + \
-                           DEST_CODE + ".txt"
+PATH_OUTPUT_TRANSLATIONS = '../data/translations/' + FROM_CODE + '-' + \
+                           DEST_CODE + '.txt'
 
 # Glosbe API parameters
 BASE_GLOSBE_URL = "https://glosbe.com/gapi/translate"
