@@ -65,34 +65,34 @@ class LanguageInfo(object):
         word_rank = 0
 
         package_directory = os.path.dirname(os.path.abspath(__file__))
-        words_file = codecs.open(package_directory + os.sep + file_name, encoding="utf8")
 
-        words_list = words_file.read().splitlines()
+        with open(package_directory + os.sep + file_name, encoding="utf8") as words_file:
+            words_list = words_file.read().splitlines()
 
-        for word_and_freq in words_list:
-            word_and_freq_array = word_and_freq.split(" ")
-            word = word_and_freq_array[0]
-            occurrences = int(word_and_freq_array[1])
+            for word_and_freq in words_list:
+                word_and_freq_array = word_and_freq.split(" ")
+                word = word_and_freq_array[0]
+                occurrences = int(word_and_freq_array[1])
 
-            frequency = compute_frequency(occurrences)
-            difficulty = compute_difficulty(word_rank)
-            importance = compute_importance(occurrences)
-            klevel = compute_klevel(word_rank)
+                frequency = compute_frequency(occurrences)
+                difficulty = compute_difficulty(word_rank)
+                importance = compute_importance(occurrences)
+                klevel = compute_klevel(word_rank)
 
-            word_rank += 1
+                word_rank += 1
 
-            if word_rank <= MAX_WORDS:
+                if word_rank <= MAX_WORDS:
 
-                if word.lower() not in new_registry.word_info_dict:
-                    r = WordInfo(
-                        word.lower(),
-                        lang_code,
-                        frequency,
-                        difficulty,
-                        importance,
-                        word_rank,
-                        klevel)
-                    new_registry.word_info_dict[word.lower()] = r
+                    if word.lower() not in new_registry.word_info_dict:
+                        r = WordInfo(
+                            word.lower(),
+                            lang_code,
+                            frequency,
+                            difficulty,
+                            importance,
+                            word_rank,
+                            klevel)
+                        new_registry.word_info_dict[word.lower()] = r
 
         return new_registry
 
