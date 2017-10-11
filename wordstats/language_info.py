@@ -12,7 +12,6 @@ from .metrics_computers import *
 
 
 class LanguageInfo(object):
-
     def __init__(self, language_id):
         self.language_id = language_id
         self.word_info_dict = dict()
@@ -65,36 +64,34 @@ class LanguageInfo(object):
         word_rank = 0
 
         package_directory = os.path.dirname(os.path.abspath(__file__))
-        words_file = codecs.open(package_directory + os.sep + file_name, encoding="utf8")
 
-        words_list = words_file.read().splitlines()
+        with codecs.open(package_directory + os.sep + file_name, encoding="utf8") as words_file:
+            words_list = words_file.read().splitlines()
 
-        words_file.close()
+            for word_and_freq in words_list:
+                word_and_freq_array = word_and_freq.split(" ")
+                word = word_and_freq_array[0]
+                occurrences = int(word_and_freq_array[1])
 
-        for word_and_freq in words_list:
-            word_and_freq_array = word_and_freq.split(" ")
-            word = word_and_freq_array[0]
-            occurrences = int(word_and_freq_array[1])
+                frequency = compute_frequency(occurrences)
+                difficulty = compute_difficulty(word_rank)
+                importance = compute_importance(occurrences)
+                klevel = compute_klevel(word_rank)
 
-            frequency = compute_frequency(occurrences)
-            difficulty = compute_difficulty(word_rank)
-            importance = compute_importance(occurrences)
-            klevel = compute_klevel(word_rank)
+                word_rank += 1
 
-            word_rank += 1
+                if word_rank <= MAX_WORDS:
 
-            if word_rank <= MAX_WORDS:
-
-                if word.lower() not in new_registry.word_info_dict:
-                    r = WordInfo(
-                        word.lower(),
-                        lang_code,
-                        frequency,
-                        difficulty,
-                        importance,
-                        word_rank,
-                        klevel)
-                    new_registry.word_info_dict[word.lower()] = r
+                    if word.lower() not in new_registry.word_info_dict:
+                        r = WordInfo(
+                            word.lower(),
+                            lang_code,
+                            frequency,
+                            difficulty,
+                            importance,
+                            word_rank,
+                            klevel)
+                        new_registry.word_info_dict[word.lower()] = r
 
         return new_registry
 
@@ -126,6 +123,7 @@ class LanguageInfo(object):
         See the tests file
         :return:
         """
+
         def clear_corresponding_entries_in_db(self):
             table = Table('word_info', Base.metadata, autoload=True, autoload_with=BaseService.engine)
             words = BaseService.session.query(table).filter(table.c.language_id == self.language_id)
@@ -139,11 +137,12 @@ class LanguageInfo(object):
     # Everything that follows is private
     def print_load_stats(self, a, b):
         memory_footprint = total_size(self.word_info_dict, set()) / 1024 / 1024
-        print(("Elapsed time to load the {0} data: {1} ({2} entries)".format(self.language_id, b - a, len(self.word_info_dict))))
+        print(("Elapsed time to load the {0} data: {1} ({2} entries)".format(self.language_id, b - a,
+                                                                             len(self.word_info_dict))))
         print(("Required memory for the {0} registry: {1}MB".format(self.language_id, memory_footprint)))
 
     @classmethod
-    def profile_load_from_db(cls, language_id, output = False):
+    def profile_load_from_db(cls, language_id, output=False):
 
         a = datetime.now()
         new_registry = cls.load_from_db(language_id)
@@ -154,7 +153,7 @@ class LanguageInfo(object):
         return b - a
 
     @classmethod
-    def profile_load_from_file(cls, file_name, language_id, output = False):
+    def profile_load_from_file(cls, file_name, language_id, output=False):
 
         a = datetime.now()
         new_registry = cls.load_from_file(file_name, language_id)
