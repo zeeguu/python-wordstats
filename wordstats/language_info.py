@@ -69,6 +69,8 @@ class LanguageInfo(object):
 
         words_list = words_file.read().splitlines()
 
+        words_file.close()
+
         for word_and_freq in words_list:
             word_and_freq_array = word_and_freq.split(" ")
             word = word_and_freq_array[0]
