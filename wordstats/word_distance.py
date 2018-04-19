@@ -30,6 +30,7 @@ class WordDistance(object):
             config.read(path)
         except FileNotFoundError:
             print(path, " not found. Supply configuration file with arguments.")
+            raise
 
         new_WordDistance.replace_distance = int(config['DISTANCE']['ReplaceDistance'])
         new_WordDistance.add_distance = int(config['DISTANCE']['AddDistance'])
