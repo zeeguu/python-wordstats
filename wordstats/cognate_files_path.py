@@ -64,7 +64,9 @@ def load_from_path(path):
             content = file.read()
 
     except FileNotFoundError:
-        print(path + " not found, assumed empty.")
+        print(path + " not found, creating empty file.")
+        codecs.open(path, encoding="utf8", mode="w")
+        content = load_from_path(path)
 
     return content
 
