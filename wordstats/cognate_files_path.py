@@ -35,7 +35,7 @@ def path_of_cognate_whitelist(language_ids):
 def path_of_cognate_parameters(language_ids, method_name):
 
     file_path = path_of_cognate_languages(language_ids) + os.sep + \
-                method_name + os.sep + method_name + "-params.cfg"
+                method_name + os.sep + "config.cfg"
 
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
@@ -73,4 +73,8 @@ def load_from_path(path):
 def save_to_file(path, content):
     with codecs.open(path, encoding="utf8", mode="w") as words_file:
         words_file.write(content)
+
+def append_to_file(path, content):
+    with codecs.open(path, encoding="utf8", mode="a") as words_file:
+        words_file.writelines(content + "\n")
 
