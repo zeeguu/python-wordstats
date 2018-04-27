@@ -53,12 +53,16 @@ class WordDistanceFactory(ABC):
             words = line.split()
             self.rules.append((words[0],words[1]))
 
+    # methods to be implemented
 
+    # method that determines whether two strings form a cognate
+    # RETURN: True if cognate otherwise False
     @abstractmethod
     def edit_distance(self, word1: str, word2: str):
         pass
 
-
+    # method for initializing parameters using configparser
+    # assign read values from configparser to class variables here
     @abstractmethod
     def initialize_from_config(self, config):
         pass

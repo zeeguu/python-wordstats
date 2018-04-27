@@ -17,8 +17,6 @@ class WordDistanceOverlap(WordDistanceFactory):
         for i in range(len(wordShortest)):
             for j in range(i + overlap_size, len(wordShortest)):
                 if wordLongest.find(wordShortest[i:(j + 1)]) >= 0:
-                    if (wordLongest == "het" and wordShortest == "he") or (wordShortest == "het" and wordLongest == "he"):
-                        print(i , j, wordShortest[i:j + 1])
                     overlap_size = max(overlap_size, j - i + 1)
 
         return overlap_size / len(wordLongest)
@@ -34,12 +32,3 @@ class WordDistanceOverlap(WordDistanceFactory):
 
     def initialize_from_config(self, config):
         pass
-
-
-
-
-
-
-
-
-

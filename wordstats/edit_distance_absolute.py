@@ -18,12 +18,3 @@ class WordDistanceAbsolute(WordDistanceFactory):
 
     def initialize_from_config(self, config):
         pass
-
-
-
-
-
-
-
-
-

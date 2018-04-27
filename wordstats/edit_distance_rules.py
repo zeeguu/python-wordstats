@@ -61,12 +61,3 @@ class WordDistanceRules(WordDistanceFactory):
         self.replace_distance = int(config['DISTANCE']['ReplaceDistance'])
         self.add_distance = int(config['DISTANCE']['AddDistance'])
         self.threshold = float(config['THRESHOLD']['Threshold'])
-
-
-
-
-
-
-
-
-
