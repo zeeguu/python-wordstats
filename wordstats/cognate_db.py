@@ -3,19 +3,21 @@ from sys import stdout
 import sqlalchemy.orm
 import sqlalchemy
 from sqlalchemy import Column, Integer, String, UniqueConstraint, Boolean
-from sqlalchemy import Float
 
 from .base_service import Base, SimplifiedQuery
 
 
 class UnknownCognateInfo(object):
     """ Default values if  we have no information about
-    a given word """
+    a given cognate pair """
     def __init__(self):
+        self.word_from = ""
+        self.word_to = ""
         self.blacklist = False
         self.whitelist = False
 
 
+# structure for cognate candidates not reviewed by the user
 class CognateCandidatesInfo(SimplifiedQuery, Base):
     __tablename__ = 'candidates_info'
     __table_args__ = {'mysql_collate': 'utf8_bin'}
@@ -60,6 +62,7 @@ class CognateCandidatesInfo(SimplifiedQuery, Base):
         return cls.query().filter(cls.language_ids == language_ids).filter(cls.method == method).all()
 
 
+# structure for reviewed cognates
 class CognateWhiteListInfo(SimplifiedQuery, Base):
     __tablename__ = 'cognate_whitelist_info'
     __table_args__ = {'mysql_collate': 'utf8_bin'}
@@ -68,7 +71,7 @@ class CognateWhiteListInfo(SimplifiedQuery, Base):
 
     word_from = Column(String(255), nullable =False, index = True)
     word_to = Column(String(255), nullable=False, index=True)
-    language_ids = Column(String(4), nullable =False, index = True)
+    language_ids = Column(String(255), nullable =False, index = True)
 
     whitelist = Column(Boolean)
 
@@ -103,5 +106,3 @@ class CognateWhiteListInfo(SimplifiedQuery, Base):
     @classmethod
     def find_all(cls,language_ids):
         return cls.query().filter(cls.language_ids == language_ids).all()
-
-
