@@ -90,16 +90,16 @@ class CognateInfo(object):
             newset = set(filter(lambda x: len(x)>0 , map(lambda w: w1 + ' ' + w if func(w1, w) else "", wordlist2)))
             self.candidates = self.candidates.union(newset)
 
-    # TODO: implement load and cache from /to db
     @classmethod
     def load_from_db(cls, language_ids, method_name= ""):
         """
-        Assumes the ~./word_info file contains
+        Assumes the ~./cognate_db file contains
         information about how to connect to the
         database. Also, assumes the database contains
         the information.
 
         :param language_ids:
+        :param method_name:
         :return:
         """
 
@@ -124,7 +124,7 @@ class CognateInfo(object):
 
     def cache_to_db(self):
         """
-        Useful to save the informations about a given language
+        Useful to save the cognates between two languages
         in the DB. Loading from the DB is faster than from file.
         See the tests file
         :return:

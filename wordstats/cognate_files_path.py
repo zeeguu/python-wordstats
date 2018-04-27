@@ -41,7 +41,6 @@ def path_of_cognate_parameters(language_ids, method_name):
 
     return file_path
 
-
 def path_of_cognate_rules(language_ids, method_name):
 
     return path_to_cognate_file(language_ids, RULES, method_name)
@@ -56,6 +55,7 @@ def path_to_cognate_file(language_ids, file_name, method_name = ""):
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
     return file_path
+
 
 def load_from_path(path):
 

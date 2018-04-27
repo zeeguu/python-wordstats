@@ -12,4 +12,4 @@ WHITELIST= 'whitelist'
 RULES= 'rules'
 CANDIDATES= 'candidates'
 
-MAX_WORDS = 1000
+MAX_WORDS = 100

@@ -1,10 +1,8 @@
 from wordstats.cognate_info import CognateInfo
 from wordstats.getchunix import read_single_keypress
 
+
 # note: only executable in terminal, reactive to one-key stroke
-from wordstats.cognate_files_path import *
-
-
 def evaluate_cognates(language_ids, method):
     print(language_ids)
     print("y:   whitelist")

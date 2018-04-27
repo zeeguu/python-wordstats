@@ -130,6 +130,7 @@ class LanguageInfo(object):
             words.delete(synchronize_session=False)
 
         clear_corresponding_entries_in_db(self)
+
         for word_info in list(self.word_info_dict.values()):
             BaseService.session.add(word_info)
         BaseService.session.commit()
