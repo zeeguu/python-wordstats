@@ -14,7 +14,7 @@ class CognateTests(TestCase):
     @classmethod
     def testload(self):
 
-        info = CognateInfo.load_from_path("denl","edit_distance")
+        info = CognateInfo.load_from_path("de", "nl","edit_distance")
 
 
     @classmethod
@@ -22,10 +22,10 @@ class CognateTests(TestCase):
         german = list(load_language_from_hermit("de").word_info_dict.keys())
         dutch = list(load_language_from_hermit("nl").word_info_dict.keys())
 
-        cognateFM = CognateInfo("denl","absolute")
+        cognateFM = CognateInfo("de", "nl","absolute")
 
         distanceMetric = WordDistanceAbsolute()
-        distanceMetric.loadConfig("denl", "absolute")
+        distanceMetric.loadConfig("de", "nl", "absolute")
         #if load fails create empty config file and warn user
 
 
@@ -37,10 +37,10 @@ class CognateTests(TestCase):
         german = list(load_language_from_hermit("de").word_info_dict.keys())
         dutch = list(load_language_from_hermit("nl").word_info_dict.keys())
 
-        cognateFM = CognateInfo("denl","edit_distance")
+        cognateFM = CognateInfo("de", "nl","edit_distance")
 
         distanceMetric = WordDistanceEdit()
-        distanceMetric.loadConfig("denl", "edit_distance")
+        distanceMetric.loadConfig("de", "nl", "edit_distance")
 
 
         cognateFM.apply_distance_metric(german, dutch, distanceMetric.edit_distance)
@@ -51,11 +51,11 @@ class CognateTests(TestCase):
         german = list(load_language_from_hermit("de").word_info_dict.keys())
         dutch = list(load_language_from_hermit("nl").word_info_dict.keys())
 
-        cognateFM = CognateInfo("denl","edit_distance_rules")
+        cognateFM = CognateInfo("de", "nl","edit_distance_rules")
 
         distanceMetric = WordDistanceRules()
-        distanceMetric.loadConfig("denl", "edit_distance_rules")
-        distanceMetric.load_rules("denl", "edit_distance_rules")
+        distanceMetric.loadConfig("de", "nl", "edit_distance_rules")
+        distanceMetric.load_rules("de", "nl", "edit_distance_rules")
 
         cognateFM.apply_distance_metric(german, dutch, distanceMetric.edit_distance)
         cognateFM.save_candidates()
@@ -65,7 +65,7 @@ class CognateTests(TestCase):
         german = list(load_language_from_hermit("de").word_info_dict.keys())
         dutch = list(load_language_from_hermit("nl").word_info_dict.keys())
 
-        cognateFM = CognateInfo("denl", "edit_distance_overlap")
+        cognateFM = CognateInfo("de", "nl", "edit_distance_overlap")
 
         distanceMetric = WordDistanceOverlap()
 
@@ -73,21 +73,14 @@ class CognateTests(TestCase):
         cognateFM.save_candidates()
 
     @classmethod
-    def testquiz(self):
-        cognateFM = CognateInfo.load_from_path("denl", "absolute")
-        cognateFM.start_quiz()
-        cognateFM.save_evaluation()
-
-
-    @classmethod
     def testcachetodb(self):
-        cognateFM = CognateInfo.load_from_path("denl", "absolute")
+        cognateFM = CognateInfo.load_from_path("de", "nl", "absolute")
         print(len(list(cognateFM.candidates)), len(list(cognateFM.blacklist)), len(list(cognateFM.whitelist)))
         cognateFM.cache_to_db()
 
     @classmethod
     def testloadfromdb(self):
-        cognateFM = CognateInfo("denl", "absolute")
-        cognateFM = cognateFM.load_from_db("denl", "absolute")
+        cognateFM = CognateInfo("de", "nl", "absolute")
+        cognateFM = cognateFM.load_from_db("de", "nl", "absolute")
         print(len(list(cognateFM.candidates)),len(list(cognateFM.blacklist)),len(list(cognateFM.whitelist)))
 

@@ -3,13 +3,13 @@ from wordstats.getchunix import read_single_keypress
 
 
 # note: only executable in terminal, reactive to one-key stroke
-def evaluate_cognates(language_ids, method):
-    print(language_ids)
+def evaluate_cognates(languageFrom, languageTo, method):
+    print(languageFrom, languageTo)
     print("y:   whitelist")
     print("q:   quit")
     print("other:   blacklist")
 
-    cognateinfo = CognateInfo.load_from_path(language_ids, method)
+    cognateinfo = CognateInfo.load_from_path(languageFrom, languageTo, method)
 
     for cognate in cognateinfo.candidates\
             .difference(cognateinfo.blacklist)\

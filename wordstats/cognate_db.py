@@ -27,39 +27,45 @@ class CognateCandidatesInfo(SimplifiedQuery, Base):
 
     word_from = Column(String(255), nullable =False, index = True)
     word_to = Column(String(255), nullable=False, index=True)
-    language_ids = Column(String(4), nullable =False, index = True)
+    languageFrom = Column(String(20), nullable =False, index = True)
+    languageTo = Column(String(20), nullable=False, index=True)
 
-    UniqueConstraint(word_from, word_to, language_ids, method)
+    UniqueConstraint(word_from, word_to, languageFrom, languageTo, method)
 
-    def __init__(self, word_from, word_to, language_ids, method):
+    def __init__(self, word_from, word_to, languageFrom, languageTo, method):
         self.word_from = word_from
         self.word_to = word_to
-        self.language_ids = language_ids
+        self.languageFrom = languageFrom
+        self.languageTo = languageTo
         self.method = method
 
     def __str__(self):
         result = "info: {2} {3} ({0} {1})".format(
             self.word_from,
             self.word_to,
-            self.language_ids,
+            self.languageFrom + self.languageTo,
             self.method)
 
         result = result.encode(stdout.encoding)
         return result
 
     @classmethod
-    def find(cls, word, language_ids, method):
+    def find(cls, word, languageFrom, languageTo, method):
         word = word.lower()
         try:
-            return (cls.query().filter(cls.word_from == word)
-                    .filter(cls.language_ids == language_ids).filter(cls.method == method)
+            return (cls.query().filter(cls.word_from == word).\
+                    filter(cls.languageFrom == languageFrom).\
+                    filter(cls.languageTo == languageTo).\
+                    filter(cls.method == method)
                     .one())
         except sqlalchemy.orm.exc.NoResultFound:
             return None
 
     @classmethod
-    def find_all(cls,language_ids, method):
-        return cls.query().filter(cls.language_ids == language_ids).filter(cls.method == method).all()
+    def find_all(cls, languageFrom, languageTo, method):
+        return cls.query().filter(cls.languageFrom == languageFrom).\
+            filter(cls.languageTo == languageTo).\
+            filter(cls.method == method).all()
 
 
 # structure for reviewed cognates
@@ -71,38 +77,43 @@ class CognateWhiteListInfo(SimplifiedQuery, Base):
 
     word_from = Column(String(255), nullable =False, index = True)
     word_to = Column(String(255), nullable=False, index=True)
-    language_ids = Column(String(255), nullable =False, index = True)
+    languageFrom = Column(String(20), nullable =False, index = True)
+    languageTo = Column(String(20), nullable=False, index=True)
 
     whitelist = Column(Boolean)
 
-    UniqueConstraint(word_from, word_to, language_ids)
+    UniqueConstraint(word_from, word_to, languageFrom, languageTo)
 
-    def __init__(self, word_from, word_to, language_ids, whitelist):
+    def __init__(self, word_from, word_to, languageFrom, languageTo, whitelist):
         self.word_from = word_from
         self.word_to = word_to
-        self.language_ids = language_ids
+        self.languageFrom = languageFrom
+        self.languageTo = languageTo
         self.whitelist = whitelist
 
     def __str__(self):
         result = "info: {2} ({0} {1}, whitelist: {3})".format(
             self.word_from,
             self.word_to,
-            self.language_ids,
+            self.languageFrom + self.languageTo,
             self.whitelist)
 
         result = result.encode(stdout.encoding)
         return result
 
     @classmethod
-    def find(cls, word, language_ids):
+    def find(cls, word, languageFrom, languageTo):
         word = word.lower()
         try:
-            return (cls.query().filter(cls.word_from == word)
-                    .filter(cls.language_ids == language_ids)
-                    .one())
+            return (cls.query().filter(cls.word_from == word).\
+                    filter(cls.languageFrom == languageFrom).\
+                    filter(cls.languageTo == languageTo).\
+                    one())
         except sqlalchemy.orm.exc.NoResultFound:
             return None
 
     @classmethod
-    def find_all(cls,language_ids):
-        return cls.query().filter(cls.language_ids == language_ids).all()
+    def find_all(cls, languageFrom, languageTo):
+        return cls.query().filter(cls.languageFrom == languageFrom).\
+            filter(cls.languageTo == languageTo).\
+            all()

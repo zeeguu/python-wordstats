@@ -14,9 +14,9 @@ class WordDistanceFactory(ABC):
     # load configuration given language combination code and method name, configuration file assumed to be
     # in the associated folder
 
-    def loadConfig(self, language_ids, method_name):
+    def loadConfig(self, languageFrom, languageTo, method_name):
 
-        language_code_path = path_of_cognate_parameters(language_ids, method_name)
+        language_code_path = path_of_cognate_parameters(languageFrom, languageTo, method_name)
 
         return self.load_from_path(language_code_path)
 
@@ -37,9 +37,9 @@ class WordDistanceFactory(ABC):
         return self
 
     # load rules from rules.txt located in associated folder
-    def load_rules(self, language_ids, method_name):
+    def load_rules(self, languageFrom, languageTo, method_name):
 
-        path = path_of_cognate_rules(language_ids, method_name)
+        path = path_of_cognate_rules(languageFrom, languageTo, method_name)
 
         self.load_rules_from_path(path)
 
