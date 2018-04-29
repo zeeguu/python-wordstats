@@ -10,6 +10,8 @@ class WordDistanceFactory(ABC):
 
     def __init__(self):
         super().__init__()
+        self.rules = []
+        self.threshold = 0.5
 
     # load configuration given language combination code and method name, configuration file assumed to be
     # in the associated folder
@@ -51,14 +53,49 @@ class WordDistanceFactory(ABC):
         self.rules = []
         for line in content.splitlines():
             words = line.split()
-            self.rules.append((words[0],words[1]))
+            if len(words) == 1:
+                self.rules.append((words[0], ""))
+            else:
+                self.rules.append((words[0],words[1]))
+
+
+    # edit_distance including rules for substitution
+    def edit_distance(self, word1: str, word2: str):
+
+        min_dist = self._edit_distance_rules_rec(word1, word2, 0)
+        if min_dist < self.threshold:
+            return True
+        else:
+            False
+
+    # apply every possible combination of substitution rules until best cognate pair is found
+    def _edit_distance_rules_rec(self, word1: str, word2: str, word1marker):
+
+        minDist = self.edit_distance_function(word1, word2)
+
+        # stop when end of word is reached
+        if word1marker >= len(word1):
+            return minDist
+
+        # recursion step, no adjustment
+        minDist = min(minDist, self._edit_distance_rules_rec(word1, word2, word1marker + 1))
+
+        # recursion step, adjust word by a rule
+        for rule in self.rules:
+            if word1.find(rule[0], word1marker) == word1marker:
+                minDist = min(minDist,
+                              self._edit_distance_rules_rec(word1.replace(rule[0], rule[1], 1), word2,
+                                                            word1marker + len(rule[1])))
+
+        return minDist
+
 
     # methods to be implemented
 
     # method that determines whether two strings form a cognate
-    # RETURN: True if cognate otherwise False
+    # RETURN: float indicating distance between two strings, 0 identical, 1 completely different
     @abstractmethod
-    def edit_distance(self, word1: str, word2: str):
+    def edit_distance_function(self, word1: str, word2: str):
         pass
 
     # method for initializing parameters using configparser

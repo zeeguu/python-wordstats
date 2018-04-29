@@ -5,15 +5,12 @@ from .edit_distance_function_factory import WordDistanceFactory
 
 class WordDistanceAbsolute(WordDistanceFactory):
     def __init__(self):
+        super().__init__()
         self.replace_distance = 1
         self.add_distance = 1
-        self.threshold = 0.3
 
-    def edit_distance(self, word1: str, word2: str):
-        if word1 == word2:
-            return True
-        else:
-            False
+    def edit_distance_function(self, word1: str, word2: str):
+        return 0 if word1 == word2 else 1
 
 
     def initialize_from_config(self, config):

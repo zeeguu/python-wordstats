@@ -3,7 +3,6 @@ from unittest import TestCase
 from wordstats.loading_from_hermit import load_language_from_hermit
 from wordstats.edit_distance_absolute import WordDistanceAbsolute
 from wordstats.edit_distance import WordDistanceEdit
-from wordstats.edit_distance_rules import WordDistanceRules
 from wordstats.edit_distance_overlap import WordDistanceOverlap
 
 from wordstats.cognate_files_path import *
@@ -53,7 +52,7 @@ class CognateTests(TestCase):
 
         cognateFM = CognateInfo("de", "nl","edit_distance_rules")
 
-        distanceMetric = WordDistanceRules()
+        distanceMetric = WordDistanceEdit()
         distanceMetric.loadConfig("de", "nl", "edit_distance_rules")
         distanceMetric.load_rules("de", "nl", "edit_distance_rules")
 
