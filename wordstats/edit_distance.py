@@ -3,9 +3,17 @@ import configparser
 from .cognate_files_path import *
 from .edit_distance_function_factory import WordDistanceFactory
 
-class WordDistanceEdit(WordDistanceFactory):
-    def __init__(self):
+
+class LanguageAwareEditDistance(WordDistanceFactory):
+    def __init__(self, primary_language, secondary_language):
         super().__init__()
+        self.primary_language = primary_language
+        self.secondary_langiuage = secondary_language
+        self._initialize_distances()
+
+    def _initialize_distances(self):
+
+        # these might change based on the primary secondayr
         self.replace_distance = 1
         self.add_distance = 1
 
@@ -23,17 +31,7 @@ class WordDistanceEdit(WordDistanceFactory):
 
         return distance / len(wordLongest)
 
-
     def initialize_from_config(self, config):
         self.replace_distance = int(config['DISTANCE']['ReplaceDistance'])
         self.add_distance = int(config['DISTANCE']['AddDistance'])
         self.threshold = float(config['THRESHOLD']['Threshold'])
-
-
-
-
-
-
-
-
-
