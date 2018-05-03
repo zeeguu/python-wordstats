@@ -1,0 +1,36 @@
+
+cognates are pairs of words between different languages which have the same meaning
+and "look" alike, the "look" alike can be understood as a large overlap between two words
+or small edit distance in between words
+
+The following methods don't take meaning into account and simply judge by similarity whether
+two words form a cognate.
+
+cognates are stored under the "language_data/cognates/language_ids/method_name" folder
+where language_ids can be any combination of language codes such as "denl" formed from
+"de" and "nl" and "method_name" describes the method used to find cognates.
+The folder contains several files:
+candidates.txt: contains pairs of words that form possible cognates
+rules.txt: pairs of strings describing a transformation of a string to another (from to)
+config.cfg: parameters to use for specified method such as word threshold
+
+In addition the language_ids folder contains two files: "blacklist.txt" and "whitelist.txt"
+which are cognates evaluated by the user i.e. cognates from "candidates.txt" are copied to
+"whitelist.txt" or "blacklist.txt" after the user confirms it is a cognate or not a cognate respectively.
+
+
+cognate_info.py: structure holding the cognate candidates as well as blacklisted/whitelisted cognates
+    contains all methods necessary for manipulating these sets and saving them to file/db
+loading_from_cognates.py: functions that abstract the folder/file logic from the rest of the
+    source files, used to obtain file paths or save/load from files
+cognate_db.py: contains structure for saving cognates to db as well as methods for retrieving cognates
+
+edit_distance_function_factory.py: abstract class from which other edit_distance functions can be made.
+    loading from configuration file and rules file is provided here. Inherited classes only need to provide
+    edit_distance method which either returns True for cognate or False for not a cognate and
+    initialize_from_config for loading parameters of the edit_distance function
+    see edit_distance_XXX.py for examples.
+
+cognate_user_evaluation.py: example function for evaluating cognates by the user interactively through the terminal
+
+
