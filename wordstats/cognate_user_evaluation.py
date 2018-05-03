@@ -13,8 +13,8 @@ def evaluate_cognates(languageFrom, languageTo, method):
     cognateinfo.save_candidates()
     for key, values in cognateinfo.candidates.items():
         for value in values:
-            #if (key not in cognateinfo.blacklist.keys() or value not in cognateinfo.blacklist[key]) and\
-                #(key not in cognateinfo.whitelist.keys() or value not in cognateinfo.whitelist[key]):
+            if (key not in cognateinfo.blacklist.keys() or value not in cognateinfo.blacklist[key]) and\
+                (key not in cognateinfo.whitelist.keys() or value not in cognateinfo.whitelist[key]):
                 print(key, value)
 
                 char = read_single_keypress()
@@ -23,11 +23,10 @@ def evaluate_cognates(languageFrom, languageTo, method):
                     cognateinfo.add_to_whitelist(key, value)
                     cognateinfo.add_to_db(key, value, True)
                 elif char == 'q':
+                    cognateinfo.save_evaluation()
                     return
                 else:
                     cognateinfo.add_to_db(key, value, False)
                     cognateinfo.add_to_blacklist(key, value)
-                #cognateinfo.save_evaluation()
-                #cognateinfo.cache_to_db()
 
 evaluate_cognates("de","nl", LanguageAwareEditDistance)
