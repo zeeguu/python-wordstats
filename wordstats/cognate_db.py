@@ -27,44 +27,44 @@ class CognateCandidatesInfo(SimplifiedQuery, Base):
 
     word_from = Column(String(255), nullable =False, index = True)
     word_to = Column(String(255), nullable=False, index=True)
-    languageFrom = Column(String(20), nullable =False, index = True)
-    languageTo = Column(String(20), nullable=False, index=True)
+    primary = Column(String(20), nullable =False, index = True)
+    secondary = Column(String(20), nullable=False, index=True)
 
-    UniqueConstraint(word_from, word_to, languageFrom, languageTo, method)
+    UniqueConstraint(word_from, word_to, primary, secondary, method)
 
     def __init__(self, word_from, word_to, languageFrom, languageTo, method):
         self.word_from = word_from
         self.word_to = word_to
-        self.languageFrom = languageFrom
-        self.languageTo = languageTo
+        self.primary = languageFrom
+        self.secondary = languageTo
         self.method = method
 
     def __str__(self):
         result = "info: {2} {3} ({0} {1})".format(
             self.word_from,
             self.word_to,
-            self.languageFrom + self.languageTo,
+            self.primary + self.secondary,
             self.method)
 
         result = result.encode(stdout.encoding)
         return result
 
     @classmethod
-    def find(cls, word, languageFrom, languageTo, method):
+    def find(cls, word, primary, secondary, method):
         word = word.lower()
         try:
             return (cls.query().filter(cls.word_from == word).\
-                    filter(cls.languageFrom == languageFrom).\
-                    filter(cls.languageTo == languageTo).\
+                    filter(cls.primary == primary).\
+                    filter(cls.secondary == secondary).\
                     filter(cls.method == method)
                     .one())
         except sqlalchemy.orm.exc.NoResultFound:
             return None
 
     @classmethod
-    def find_all(cls, languageFrom, languageTo, method):
-        return cls.query().filter(cls.languageFrom == languageFrom).\
-            filter(cls.languageTo == languageTo).\
+    def find_all(cls, primary, secondary, method):
+        return cls.query().filter(cls.primary == primary).\
+            filter(cls.secondary == secondary).\
             filter(cls.method == method).all()
 
 
@@ -77,43 +77,43 @@ class CognateWhiteListInfo(SimplifiedQuery, Base):
 
     word_from = Column(String(255), nullable =False, index = True)
     word_to = Column(String(255), nullable=False, index=True)
-    languageFrom = Column(String(20), nullable =False, index = True)
-    languageTo = Column(String(20), nullable=False, index=True)
+    primary = Column(String(20), nullable =False, index = True)
+    secondary = Column(String(20), nullable=False, index=True)
 
     whitelist = Column(Boolean)
 
-    UniqueConstraint(word_from, word_to, languageFrom, languageTo)
+    UniqueConstraint(word_from, word_to, primary, secondary)
 
     def __init__(self, word_from, word_to, languageFrom, languageTo, whitelist):
         self.word_from = word_from
         self.word_to = word_to
-        self.languageFrom = languageFrom
-        self.languageTo = languageTo
+        self.primary = languageFrom
+        self.secondary = languageTo
         self.whitelist = whitelist
 
     def __str__(self):
         result = "info: {2} ({0} {1}, whitelist: {3})".format(
             self.word_from,
             self.word_to,
-            self.languageFrom + self.languageTo,
+            self.primary + self.secondary,
             self.whitelist)
 
         result = result.encode(stdout.encoding)
         return result
 
     @classmethod
-    def find(cls, word, languageFrom, languageTo):
+    def find(cls, word, primary, secondary):
         word = word.lower()
         try:
             return (cls.query().filter(cls.word_from == word).\
-                    filter(cls.languageFrom == languageFrom).\
-                    filter(cls.languageTo == languageTo).\
+                    filter(cls.primary == primary).\
+                    filter(cls.secondary == secondary).\
                     one())
         except sqlalchemy.orm.exc.NoResultFound:
             return None
 
     @classmethod
     def find_all(cls, languageFrom, languageTo):
-        return cls.query().filter(cls.languageFrom == languageFrom).\
-            filter(cls.languageTo == languageTo).\
+        return cls.query().filter(cls.primary == languageFrom).\
+            filter(cls.secondary == languageTo).\
             all()

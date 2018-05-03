@@ -30,21 +30,21 @@ class CognateInfo(object):
 
     """
 
-    def __init__(self, languageFrom, languageTo, distance_computer_class: WordDistanceFactory):
+    def __init__(self, primary, secondary, distance_computer_class: WordDistanceFactory):
         """
 
             either load from file, or compute if needed
 
-        :param languageFrom:
-        :param languageTo:
+        :param primary:
+        :param secondary:
         :param method_name:
         """
-        self.languageFrom = languageFrom
-        self.languageTo = languageTo
+        self.primary = primary
+        self.secondary = secondary
         self.whitelist = dict()
         self.candidates = dict()
         self.blacklist = dict()
-        self.distance_computer = distance_computer_class(languageFrom, languageTo)
+        self.distance_computer = distance_computer_class(primary, secondary)
 
 
     def best_guess(self):
@@ -60,8 +60,8 @@ class CognateInfo(object):
     # def apply_distance_metric(self, wordlist1, wordlist2, func):
 
     def compute(self):
-        wordlist1 = list(load_language_from_hermit(self.languageFrom).word_info_dict.keys())
-        wordlist2 = list(load_language_from_hermit(self.languageTo).word_info_dict.keys())
+        wordlist1 = list(load_language_from_hermit(self.primary).word_info_dict.keys())
+        wordlist2 = list(load_language_from_hermit(self.secondary).word_info_dict.keys())
 
         self.candidates = dict()
         for w1 in wordlist1:
@@ -77,21 +77,21 @@ class CognateInfo(object):
     # ========================
 
     @classmethod
-    def load_cached(cls, languageFrom, languageTo, distance_computer_class: WordDistanceFactory):
+    def load_cached(cls, primary, secondary, distance_computer_class: WordDistanceFactory):
 
-        new_registry = cls.load_from_db(languageFrom, languageTo,
-                           distance_computer_class)
+        new_registry = cls.load_from_db(primary, secondary,
+                                        distance_computer_class)
 
         if len(new_registry.candidates) > 0:  # stored in db
             return new_registry
 
-        new_registry = cls.load_from_path(languageFrom, languageTo,
+        new_registry = cls.load_from_path(primary, secondary,
                                           distance_computer_class)
         if len(new_registry.candidates) > 0:  # stored in local file
             return new_registry
 
-        new_registry = cls(languageFrom, languageTo,
-                                        distance_computer_class)
+        new_registry = cls(primary, secondary,
+                           distance_computer_class)
         new_registry.compute()              # compute candidates
 
         return new_registry
@@ -128,8 +128,8 @@ class CognateInfo(object):
 
         try:
             BaseService.session.add(CognateWhiteListInfo(primaryWord, secondaryWord,
-                                                                  self.languageFrom, self.languageTo,
-                                                                 whitelist))
+                                                         self.primary, self.secondary,
+                                                         whitelist))
             BaseService.session.commit()
         except sqlalchemy.exc.IntegrityError:
             # value to be added is already in database
@@ -176,7 +176,7 @@ class CognateInfo(object):
 
     def save_candidates(self):
 
-        language_code_path = path_of_cognate_candidates(self.languageFrom, self.languageTo, self.distance_computer.method_name)
+        language_code_path = path_of_cognate_candidates(self.primary, self.secondary, self.distance_computer.method_name)
 
         lines = []
         for k, v in self.candidates.items():
@@ -192,14 +192,14 @@ class CognateInfo(object):
 
         :return: None
         """
-        language_code_path = path_of_cognate_whitelist(self.languageFrom, self.languageTo)
+        language_code_path = path_of_cognate_whitelist(self.primary, self.secondary)
         lines = []
         for k, v in self.whitelist.items():
             lines.append(k + " " + " ".join(str(x) for x in v))
 
         save_to_file(language_code_path, '\n'.join(lines))
 
-        language_code_path = path_of_cognate_blacklist(self.languageFrom, self.languageTo)
+        language_code_path = path_of_cognate_blacklist(self.primary, self.secondary)
         lines = []
         for k, v in self.blacklist.items():
             lines.append(k + " " + " ".join(str(x) for x in v))
@@ -250,15 +250,15 @@ class CognateInfo(object):
 
         def clear_corresponding_entries_in_db_candidates(self):
             table = Table('candidates_info', Base.metadata, autoload=True, autoload_with=BaseService.engine)
-            words = BaseService.session.query(table).filter(table.c.languageFrom == self.languageFrom). \
-                filter(table.c.languageTo == self.languageTo). \
+            words = BaseService.session.query(table).filter(table.c.primary == self.primary). \
+                filter(table.c.secondary == self.secondary). \
                 filter(table.c.method == self.distance_computer.method_name)
             words.delete(synchronize_session=False)
 
         def clear_corresponding_entries_in_db_whitelist(self):
             table = Table('cognate_whitelist_info', Base.metadata, autoload=True, autoload_with=BaseService.engine)
-            words = BaseService.session.query(table).filter(table.c.languageFrom == self.languageFrom). \
-                filter(table.c.languageTo == self.languageTo)
+            words = BaseService.session.query(table).filter(table.c.primary == self.primary). \
+                filter(table.c.secondary == self.secondary)
             words.delete(synchronize_session=False)
 
         clear_corresponding_entries_in_db_candidates(self)
@@ -266,7 +266,7 @@ class CognateInfo(object):
         for key, values in self.candidates.items():
             for value in values:
                 BaseService.session.add(CognateCandidatesInfo(key, value,
-                                                              self.languageFrom, self.languageTo,
+                                                              self.primary, self.secondary,
                                                               self.distance_computer.method_name))
 
         clear_corresponding_entries_in_db_whitelist(self)
@@ -274,14 +274,14 @@ class CognateInfo(object):
         for key, values in self.whitelist.items():
             for value in values:
                 BaseService.session.add(CognateWhiteListInfo(key, value,
-                                                              self.languageFrom, self.languageTo,
-                                                              True))
+                                                             self.primary, self.secondary,
+                                                             True))
 
         for key, values in self.blacklist.items():
             for value in values:
                 BaseService.session.add(CognateWhiteListInfo(key, value,
-                                                              self.languageFrom, self.languageTo,
-                                                              False))
+                                                             self.primary, self.secondary,
+                                                             False))
 
         BaseService.session.commit()
 
@@ -293,7 +293,7 @@ class CognateInfo(object):
         memory_footprint = total_size(self.candidates, dict()) / 1024 / 1024
         print(("Elapsed time to load the {0} data: {1} ({2} entries)".format(self.candidates, b - a,
                                                                              len(self.candidates))))
-        print(("Required memory for the {0} {1} {2} registry: {3}MB".format(self.languageFrom, self.languageTo,
+        print(("Required memory for the {0} {1} {2} registry: {3}MB".format(self.primary, self.secondary,
                                                                             self.distance_computer.method_name,
                                                                             memory_footprint)))
 
