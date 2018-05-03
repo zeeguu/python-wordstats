@@ -229,7 +229,7 @@ class CognateInfo(object):
         all_word_info_items = CognateCandidatesInfo.find_all(primary, secondary, new_registry.distance_computer.method_name)
 
         for each in all_word_info_items:
-            if each.word_from in new_registry.whitelist:
+            if each.word_from in new_registry.candidates:
                 new_registry.candidates[each.word_from].append(each.word_to)
             else:
                 new_registry.candidates[each.word_from] = [each.word_to]
