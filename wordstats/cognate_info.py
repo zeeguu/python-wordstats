@@ -54,8 +54,6 @@ class CognateInfo(object):
 
         return best_dict
 
-
-
     # generates candidates based on distance function func and word lists
     # def apply_distance_metric(self, wordlist1, wordlist2, func):
 
@@ -71,6 +69,12 @@ class CognateInfo(object):
                         self.candidates[w1].append(w2)
                     else:
                         self.candidates[w1] = [w2]
+
+    def has_cognates(self, primaryWord):
+        return primaryWord in self.candidates.keys()
+
+    def get_cognates(self, primaryWord):
+        return self.candidates[primaryWord]
 
     # ========================
     # File Handling
