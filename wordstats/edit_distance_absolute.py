@@ -12,7 +12,3 @@ class WordDistanceAbsolute(WordDistanceFactory):
 
     def edit_distance_function(self, word1: str, word2: str):
         return 0 if word1 == word2 else 1
-
-
-    def initialize_from_config(self, config):
-        pass

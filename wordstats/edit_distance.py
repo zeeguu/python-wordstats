@@ -6,9 +6,9 @@ from .edit_distance_function_factory import WordDistanceFactory
 
 class LanguageAwareEditDistance(WordDistanceFactory):
     def __init__(self, primary_language, secondary_language):
-        super().__init__()
-        self.primary_language = primary_language
-        self.secondary_langiuage = secondary_language
+        super().__init__(primary_language, secondary_language)
+        self.method_name = "edit_distance"
+        self.threshold = 0.5
         self._initialize_distances()
 
     def _initialize_distances(self):
@@ -30,8 +30,3 @@ class LanguageAwareEditDistance(WordDistanceFactory):
             distance += self.add_distance
 
         return distance / len(wordLongest)
-
-    def initialize_from_config(self, config):
-        self.replace_distance = int(config['DISTANCE']['ReplaceDistance'])
-        self.add_distance = int(config['DISTANCE']['AddDistance'])
-        self.threshold = float(config['THRESHOLD']['Threshold'])

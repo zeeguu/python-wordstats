@@ -4,8 +4,9 @@ from .cognate_files_path import *
 from .edit_distance_function_factory import WordDistanceFactory
 
 class WordDistanceOverlap(WordDistanceFactory):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, primary_language, secondary_language):
+        super().__init__(primary_language, secondary_language)
+        self.method_name = "overlap"
 
     def edit_distance_function(self, word1:str, word2:str):
 
@@ -18,6 +19,3 @@ class WordDistanceOverlap(WordDistanceFactory):
                     overlap_size = max(overlap_size, j - i + 1)
 
         return 1 - overlap_size / len(wordLongest)
-
-    def initialize_from_config(self, config):
-        pass
