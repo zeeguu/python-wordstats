@@ -1,47 +1,39 @@
-# "hermit dave" has a nice repository of word frequencies
-# computed for many languages based on movie subtitles
 
 from .config import DATA_FOLDER_COGNATES, WHITELIST, BLACKLIST, RULES, CANDIDATES
 import os
 import codecs
 
+# useful methods for handling files
 
-
-def path_of_cognate_languages(languageFrom, languageTo):
+def path_of_cognate_languages(primary, secundary):
     package_directory = os.path.dirname(os.path.abspath(__file__))
-    file_path = package_directory + os.sep + "{0}{1}{2}{3}".format(DATA_FOLDER_COGNATES, os.sep, languageFrom, languageTo)
+    file_path = package_directory + os.sep + "{0}{1}{2}{3}".format(DATA_FOLDER_COGNATES, os.sep, primary, secundary)
     return file_path
 
-def path_of_cognate_candidates(languageFrom, languageTo, method_name):
+def path_of_cognate_candidates(primary, secundary, method_name):
 
-    return path_to_cognate_file(languageFrom, languageTo, CANDIDATES, method_name)
-
-
-def path_of_cognate_blacklist(languageFrom, languageTo):
-
-    return path_to_cognate_file(languageFrom, languageTo, BLACKLIST)
+    return path_to_cognate_file(primary, secundary, CANDIDATES, method_name)
 
 
-def path_of_cognate_whitelist(languageFrom, languageTo):
+def path_of_cognate_blacklist(primary, secundary, author:str = ""):
 
-    return path_to_cognate_file(languageFrom, languageTo, WHITELIST)
+    return path_to_cognate_file(primary, secundary,
+                                BLACKLIST if len(author) == 0 else (BLACKLIST + "_" + author))
 
-def path_of_cognate_parameters(languageFrom, languageTo, method_name):
 
-    file_path = path_of_cognate_languages(languageFrom, languageTo) + os.sep + \
-                method_name + os.sep + "config.cfg"
+def path_of_cognate_whitelist(primary, secundary, author:str = ""):
 
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    return path_to_cognate_file(primary, secundary,
+                                WHITELIST if len(author) == 0 else (WHITELIST + "_" + author))
 
-    return file_path
 
-def path_of_cognate_rules(languageFrom, languageTo, method_name):
+def path_of_cognate_rules(primary, secundary, method_name):
 
-    return path_to_cognate_file(languageFrom, languageTo, RULES, method_name)
+    return path_to_cognate_file(primary, secundary, RULES, method_name)
 
-def path_to_cognate_file(languageFrom, languageTo, file_name, method_name = ""):
+def path_to_cognate_file(primary, secundary, file_name, method_name = ""):
 
-    file_path = path_of_cognate_languages(languageFrom, languageTo) + os.sep
+    file_path = path_of_cognate_languages(primary, secundary) + os.sep
     if method_name is not "":
         file_path += method_name + os.sep
     file_path += file_name + ".txt"

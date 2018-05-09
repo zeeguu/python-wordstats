@@ -16,6 +16,7 @@ from .cognate_files_path import *
 from .cognate_db import *
 from .getchunix import read_single_keypress
 from .edit_distance_function_factory import WordDistanceFactory
+from collections import defaultdict
 
 
 class CognateInfo(object):
@@ -30,7 +31,7 @@ class CognateInfo(object):
 
     """
 
-    def __init__(self, primary, secondary, distance_computer_class: WordDistanceFactory):
+    def __init__(self, primary, secondary, distance_computer_class: WordDistanceFactory, author:str = ""):
         """
 
             either load from file, or compute if needed
@@ -41,11 +42,11 @@ class CognateInfo(object):
         """
         self.primary = primary
         self.secondary = secondary
-        self.whitelist = dict()
-        self.candidates = dict()
-        self.blacklist = dict()
+        self.whitelist = defaultdict(list)
+        self.candidates = defaultdict(list)
+        self.blacklist = defaultdict(list)
         self.distance_computer = distance_computer_class(primary, secondary)
-
+        self.author = author
 
     def best_guess(self):
         best_dict = dict(self.candidates)
@@ -61,14 +62,11 @@ class CognateInfo(object):
         wordlist1 = list(load_language_from_hermit(self.primary).word_info_dict.keys())
         wordlist2 = list(load_language_from_hermit(self.secondary).word_info_dict.keys())
 
-        self.candidates = dict()
+        self.candidates = defaultdict(list)
         for w1 in wordlist1:
             for w2 in wordlist2:
-                if self.distance_computer.edit_distance(w1, w2):
-                    if w1 in self.candidates:
-                        self.candidates[w1].append(w2)
-                    else:
-                        self.candidates[w1] = [w2]
+                if self.distance_computer.is_candidate(w1, w2):
+                    self.candidates[w1].append(w2)
 
     def has_cognates(self, primaryWord):
         return primaryWord in self.candidates.keys()
@@ -76,22 +74,32 @@ class CognateInfo(object):
     def get_cognates(self, primaryWord):
         return self.candidates[primaryWord]
 
+    def add_to_whitelist(self, primaryWord, secondaryWord):
+
+        self.whitelist[primaryWord].append(secondaryWord)
+
+    def add_to_blacklist(self, primaryWord, secondaryWord):
+
+        self.blacklist[primaryWord].append(secondaryWord)
+
     # ========================
     # File Handling
     # ========================
 
     @classmethod
-    def load_cached(cls, primary, secondary, distance_computer_class: WordDistanceFactory):
+    def load_cached(cls, primary, secondary, distance_computer_class: WordDistanceFactory, author:str = ""):
 
         new_registry = cls.load_from_db(primary, secondary,
-                                        distance_computer_class)
+                                        distance_computer_class, author)
 
         if len(new_registry.candidates) > 0:  # stored in db
+            print("loaded from db")
             return new_registry
 
         new_registry = cls.load_from_path(primary, secondary,
-                                          distance_computer_class)
+                                          distance_computer_class, author)
         if len(new_registry.candidates) > 0:  # stored in local file
+            print("loaded from file")
             return new_registry
 
         new_registry = cls(primary, secondary,
@@ -100,48 +108,8 @@ class CognateInfo(object):
 
         return new_registry
 
-    def add_to_whitelist(self, primaryWord, secondaryWord):
-        """
-
-            maybe rename to
-               append_to_whitelist_file
-               ?
-
-        :param cognate:
-        :return:
-        """
-        if primaryWord in self.whitelist:
-            self.whitelist[primaryWord].append(secondaryWord)
-        else:
-            self.whitelist[primaryWord] = [secondaryWord]
-
-    def add_to_blacklist(self, primaryWord, secondaryWord):
-        """
-            ditto
-
-        :param cognate:
-        :return:
-        """
-
-        if primaryWord in self.blacklist:
-            self.blacklist[primaryWord].append(secondaryWord)
-        else:
-            self.blacklist[primaryWord] = [secondaryWord]
-
-    def add_to_db(self, primaryWord, secondaryWord, whitelist: Boolean):
-
-        try:
-            BaseService.session.add(CognateWhiteListInfo(primaryWord, secondaryWord,
-                                                         self.primary, self.secondary,
-                                                         whitelist))
-            BaseService.session.commit()
-        except sqlalchemy.exc.IntegrityError:
-            # value to be added is already in database
-            BaseService.session.rollback()
-
-    # also save new dicts
     @classmethod
-    def load_from_path(cls, primary, secondary, distance_function):
+    def load_from_path(cls, primary, secondary, distance_function, author:str = ""):
         """
         Loads cognate information given the cognate code (e.g. ennl) and method_name
         Loads the word info from the given file
@@ -161,12 +129,12 @@ class CognateInfo(object):
 
         new_registry = cls(primary, secondary, distance_function)
 
-        language_code_path = path_of_cognate_whitelist(primary, secondary)
+        language_code_path = path_of_cognate_whitelist(primary, secondary, author)
         for line in load_from_path(language_code_path).splitlines():
             keyValue = line.split()
             new_registry.whitelist[keyValue[0]] = keyValue[1:]
 
-        language_code_path = path_of_cognate_blacklist(primary, secondary)
+        language_code_path = path_of_cognate_blacklist(primary, secondary, author)
         for line in load_from_path(language_code_path).splitlines():
             keyValue = line.split()
             new_registry.blacklist[keyValue[0]] = keyValue[1:]
@@ -188,22 +156,30 @@ class CognateInfo(object):
 
         save_to_file(language_code_path, '\n'.join(lines))
 
-    def save_evaluation(self):
+    def is_evaluated(self, word_primary, word_secondary):
+        return (word_primary not in self.blacklist.keys() or word_secondary not in self.blacklist[word_primary]) and\
+                (word_primary not in self.whitelist.keys() or word_secondary not in self.whitelist[word_primary])
+
+    def save_whitelist(self):
         """
-
-        write to disk both whitelist and blacklist
-        worth a rename of the method name
-
+        write to file the whitelisted candidates
         :return: None
         """
-        language_code_path = path_of_cognate_whitelist(self.primary, self.secondary)
+
+        language_code_path = path_of_cognate_whitelist(self.primary, self.secondary, self.author)
         lines = []
         for k, v in self.whitelist.items():
             lines.append(k + " " + " ".join(str(x) for x in v))
 
         save_to_file(language_code_path, '\n'.join(lines))
 
-        language_code_path = path_of_cognate_blacklist(self.primary, self.secondary)
+    def save_blacklist(self, author:str = ""):
+        """
+        write to file the blacklisted candidates
+        :return: None
+        """
+
+        language_code_path = path_of_cognate_blacklist(self.primary, self.secondary, self.author)
         lines = []
         for k, v in self.blacklist.items():
             lines.append(k + " " + " ".join(str(x) for x in v))
@@ -211,8 +187,12 @@ class CognateInfo(object):
         save_to_file(language_code_path, '\n'.join(lines))
 
 
+    # ========================
+    # Database Handling
+    # ========================
+
     @classmethod
-    def load_from_db(cls, primary, secondary, distance_function):
+    def load_from_db(cls, primary, secondary, distance_function, author:str = ""):
         """
         Assumes the ~./cognate_db file contains
         information about how to connect to the
@@ -226,29 +206,24 @@ class CognateInfo(object):
 
         new_registry = cls(primary, secondary, distance_function)
 
-        all_word_info_items = CognateCandidatesInfo.find_all(primary, secondary, new_registry.distance_computer.method_name)
+        candidates = CognateCandidatesInfo.find_all(primary, secondary, new_registry.distance_computer.method_name)
 
-        for each in all_word_info_items:
-            if each.word_from in new_registry.candidates:
-                new_registry.candidates[each.word_from].append(each.word_to)
-            else:
-                new_registry.candidates[each.word_from] = [each.word_to]
+        for each in candidates:
+            new_registry.candidates[each.word_primary].append(each.word_secondary)
 
-        all_word_info_items = CognateWhiteListInfo.find_all(primary, secondary)
+        whitelist_cognates = CognateWhiteListInfo.find_all(primary, secondary, author)
 
-        for each in all_word_info_items:
+        for each in whitelist_cognates:
             if each.whitelist:
-                new_registry.add_to_whitelist(each.word_from, each.word_to)
+                new_registry.add_to_whitelist(each.word_primary, each.word_secondary)
             else:
-                new_registry.add_to_blacklist(each.word_from, each.word_to)
-
+                new_registry.add_to_blacklist(each.word_primary, each.word_secondary)
         return new_registry
 
-    def cache_to_db(self):
+    def cache_candidates_to_db(self):
         """
-        Useful to save the cognates between two languages
+        Useful to save the candidates between two languages
         in the DB. Loading from the DB is faster than from file.
-        See the tests file
         :return:
         """
 
@@ -259,12 +234,6 @@ class CognateInfo(object):
                 filter(table.c.method == self.distance_computer.method_name)
             words.delete(synchronize_session=False)
 
-        def clear_corresponding_entries_in_db_whitelist(self):
-            table = Table('cognate_whitelist_info', Base.metadata, autoload=True, autoload_with=BaseService.engine)
-            words = BaseService.session.query(table).filter(table.c.primary == self.primary). \
-                filter(table.c.secondary == self.secondary)
-            words.delete(synchronize_session=False)
-
         clear_corresponding_entries_in_db_candidates(self)
 
         for key, values in self.candidates.items():
@@ -273,28 +242,79 @@ class CognateInfo(object):
                                                               self.primary, self.secondary,
                                                               self.distance_computer.method_name))
 
+        BaseService.session.commit()
+
+    def cache_evaluation_to_db(self):
+        """
+        Useful to save the evaluation between two languages
+        in the DB. Loading from the DB is faster than from file.
+        :return:
+        """
+
+        def clear_corresponding_entries_in_db_whitelist(self):
+            table = Table('cognate_whitelist_info', Base.metadata, autoload=True, autoload_with=BaseService.engine)
+            words = BaseService.session.query(table).filter(table.c.primary == self.primary). \
+                filter(table.c.secondary == self.secondary).filter(table.c.author == self.author)
+            words.delete(synchronize_session=False)
+
         clear_corresponding_entries_in_db_whitelist(self)
 
         for key, values in self.whitelist.items():
             for value in values:
                 BaseService.session.add(CognateWhiteListInfo(key, value,
                                                              self.primary, self.secondary,
-                                                             True))
+                                                             True, self.author))
 
         for key, values in self.blacklist.items():
             for value in values:
                 BaseService.session.add(CognateWhiteListInfo(key, value,
                                                              self.primary, self.secondary,
-                                                             False))
+                                                             False, self.author))
 
         BaseService.session.commit()
+
+
+    def add_to_db(self, primaryWord, secondaryWord):
+        """
+        Try to add one cognate pair to candidate db.
+
+        :param primaryWord: word from primary language
+        :param secondaryWord: word from secundary language
+        :return: None
+        """
+        try:
+            BaseService.session.add(CognateCandidatesInfo(primaryWord, secondaryWord,
+                                                         self.primary, self.secondary,
+                                                          self.distance_computer.method_name))
+            BaseService.session.commit()
+        except sqlalchemy.exc.IntegrityError:
+            # value to be added is already in database
+            BaseService.session.rollback()
+
+    def add_to_db(self, primaryWord, secondaryWord, whitelist: Boolean):
+        """
+        Try to add one cognate pair to evaluation db.
+
+        :param primaryWord: word from primary language
+        :param secondaryWord: word from secundary language
+        :param whitelist: True to add cognate pair to whitelist otherwise blacklist
+        :return: None
+        """
+        try:
+            BaseService.session.add(CognateWhiteListInfo(primaryWord, secondaryWord,
+                                                         self.primary, self.secondary,
+                                                         whitelist, self.author))
+            BaseService.session.commit()
+        except sqlalchemy.exc.IntegrityError:
+            # value to be added is already in database
+            BaseService.session.rollback()
 
     # ========================
     # Benchmarking performance
     # ========================
     # Everything that follows is private
     def _print_load_stats(self, a, b):
-        memory_footprint = total_size(self.candidates, dict()) / 1024 / 1024
+        memory_footprint = total_size(self.candidates, defaultdict(list)) / 1024 / 1024
         print(("Elapsed time to load the {0} data: {1} ({2} entries)".format(self.candidates, b - a,
                                                                              len(self.candidates))))
         print(("Required memory for the {0} {1} {2} registry: {3}MB".format(self.primary, self.secondary,
