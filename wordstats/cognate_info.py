@@ -47,7 +47,6 @@ class CognateInfo(object):
         self.blacklist = defaultdict(list)
         self.distance_computer = distance_computer_class(primary, secondary, author)
         self.author = author
-        print(author)
 
     def best_guess(self):
         best_dict = dict(self.candidates)
@@ -128,7 +127,7 @@ class CognateInfo(object):
         :return:
         """
 
-        new_registry = cls(primary, secondary, distance_function)
+        new_registry = cls(primary, secondary, distance_function, author)
 
         language_code_path = path_of_cognate_whitelist(primary, secondary, author)
         for line in load_from_path(language_code_path).splitlines():
@@ -205,7 +204,7 @@ class CognateInfo(object):
         :return:
         """
 
-        new_registry = cls(primary, secondary, distance_function)
+        new_registry = cls(primary, secondary, distance_function, author)
 
         candidates = CognateCandidatesInfo.find_all(primary, secondary, new_registry.distance_computer.method_name)
 

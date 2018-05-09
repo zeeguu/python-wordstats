@@ -29,7 +29,6 @@ class WordDistanceFactory(ABC):
 
         if len(self.rules) == 0:
             path = path_of_cognate_rules(self.primary, self.secondary, self.method_name, self.author)
-            print(path)
             self.load_rules_from_path(path)
 
     def load_rules_from_path(self, path):
