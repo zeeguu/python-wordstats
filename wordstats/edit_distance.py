@@ -2,8 +2,8 @@ from .edit_distance_function_factory import WordDistanceFactory
 from nltk.metrics.distance import edit_distance
 
 class LanguageAwareEditDistance(WordDistanceFactory):
-    def __init__(self, primary, secondary):
-        super().__init__(primary, secondary)
+    def __init__(self, primary, secondary, author:str = ""):
+        super().__init__(primary, secondary, author)
         self.method_name = "edit_distance"
         self.threshold = 0.3
         self._initialize_distances()

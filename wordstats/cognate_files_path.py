@@ -27,9 +27,10 @@ def path_of_cognate_whitelist(primary, secundary, author:str = ""):
                                 WHITELIST if len(author) == 0 else (WHITELIST + "_" + author))
 
 
-def path_of_cognate_rules(primary, secundary, method_name):
+def path_of_cognate_rules(primary, secundary, method_name, author:str = ""):
 
-    return path_to_cognate_file(primary, secundary, RULES, method_name)
+    return path_to_cognate_file(primary, secundary, RULES if len(author) == 0 else (RULES + "_" + author)
+                                , method_name)
 
 def path_to_cognate_file(primary, secundary, file_name, method_name = ""):
 

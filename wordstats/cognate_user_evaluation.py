@@ -3,13 +3,13 @@ from wordstats.getchunix import read_single_keypress
 from wordstats.edit_distance import LanguageAwareEditDistance
 
 # note: only executable in terminal, reactive to one-key stroke
-def evaluate_cognates(languageFrom, languageTo, method):
+def evaluate_cognates(languageFrom, languageTo, method, author:str = ""):
     print(languageFrom, languageTo)
     print("y:   whitelist")
     print("q:   quit")
     print("other:   blacklist")
 
-    cognateinfo = CognateInfo.load_cached(languageFrom, languageTo, method)
+    cognateinfo = CognateInfo.load_cached(languageFrom, languageTo, method, author)
     cognateinfo.save_candidates()
     for key, values in cognateinfo.candidates.items():
         for value in values:
@@ -22,11 +22,12 @@ def evaluate_cognates(languageFrom, languageTo, method):
                 if char == 'y':
                     cognateinfo.add_to_whitelist(key, value)
                     cognateinfo.add_to_db(key, value, True)
+                    cognateinfo.save_whitelist()
                 elif char == 'q':
-                    cognateinfo.save_evaluation()
                     return
                 else:
                     cognateinfo.add_to_db(key, value, False)
                     cognateinfo.add_to_blacklist(key, value)
+                    cognateinfo.save_blacklist()
 
-evaluate_cognates("de","nl", LanguageAwareEditDistance)
+evaluate_cognates("fr","nl", LanguageAwareEditDistance, "me")

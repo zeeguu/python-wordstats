@@ -1,4 +1,0 @@
-d t
-c k
-k c
-t d

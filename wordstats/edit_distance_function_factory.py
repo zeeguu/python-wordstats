@@ -11,7 +11,7 @@ from .base_service import BaseService, Base
 # abstract methods are specific to the distance measure
 class WordDistanceFactory(ABC):
 
-    def __init__(self, primary, secondary):
+    def __init__(self, primary, secondary, author:str = ""):
         super().__init__()
         self.rules = dict()
         self.threshold = 0.5
@@ -19,6 +19,7 @@ class WordDistanceFactory(ABC):
         self.method_name = ""
         self.primary = primary
         self.secondary = secondary
+        self.author = author
         self.load_rules()
 
     # load rules from rules.txt located in associated folder
@@ -27,7 +28,8 @@ class WordDistanceFactory(ABC):
         self.load_rules_from_db()
 
         if len(self.rules) == 0:
-            path = path_of_cognate_rules(self.primary, self.secondary, self.method_name)
+            path = path_of_cognate_rules(self.primary, self.secondary, self.method_name, self.author)
+            print(path)
             self.load_rules_from_path(path)
 
     def load_rules_from_path(self, path):
@@ -45,7 +47,7 @@ class WordDistanceFactory(ABC):
     def load_rules_from_db(self):
 
         self.rules = dict()
-        rules = TransformRules.find_all(self.primary, self.secondary)
+        rules = TransformRules.find_all(self.primary, self.secondary, self.author)
 
         for rule in rules:
             self.rules[rule.fromString] = rule.toString
@@ -56,7 +58,9 @@ class WordDistanceFactory(ABC):
         def clear_corresponding_entries_in_db_rules(self):
             table = Table('transform_rules', Base.metadata, autoload=True, autoload_with=BaseService.engine)
             words = BaseService.session.query(table).filter(table.c.primary == self.primary). \
-                filter(table.c.secondary == self.secondary)
+                filter(table.c.secondary == self.secondary). \
+                filter(table.c.author == self.author)
+
             words.delete(synchronize_session=False)
 
             clear_corresponding_entries_in_db_rules(self)

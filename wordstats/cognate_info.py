@@ -45,8 +45,9 @@ class CognateInfo(object):
         self.whitelist = defaultdict(list)
         self.candidates = defaultdict(list)
         self.blacklist = defaultdict(list)
-        self.distance_computer = distance_computer_class(primary, secondary)
+        self.distance_computer = distance_computer_class(primary, secondary, author)
         self.author = author
+        print(author)
 
     def best_guess(self):
         best_dict = dict(self.candidates)
@@ -103,7 +104,7 @@ class CognateInfo(object):
             return new_registry
 
         new_registry = cls(primary, secondary,
-                           distance_computer_class)
+                           distance_computer_class, author)
         new_registry.compute()              # compute candidates
 
         return new_registry
@@ -173,7 +174,7 @@ class CognateInfo(object):
 
         save_to_file(language_code_path, '\n'.join(lines))
 
-    def save_blacklist(self, author:str = ""):
+    def save_blacklist(self):
         """
         write to file the blacklisted candidates
         :return: None

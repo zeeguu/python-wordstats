@@ -4,8 +4,8 @@ from .cognate_files_path import *
 from .edit_distance_function_factory import WordDistanceFactory
 
 class WordDistanceAbsolute(WordDistanceFactory):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, primary, secondary, author:str = ""):
+        super().__init__(primary, secondary, author)
         self.replace_distance = 2
         self.add_distance = 3
         self.method_name = "absolute"
