@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 from wordstats.cognate_files_path import *
 import configparser
+from .rules_db import TransformRules
+from sqlalchemy import Table
+from .base_service import BaseService, Base
 
 
 # abstract class for creating a distance measure between two rules
@@ -8,37 +11,61 @@ import configparser
 # abstract methods are specific to the distance measure
 class WordDistanceFactory(ABC):
 
-    def __init__(self, primary_language, secondary_language):
+    def __init__(self, primary, secondary):
         super().__init__()
-        self.rules = []
+        self.rules = dict()
         self.threshold = 0.5
     # in addition, derived classes need to implement the following variables
         self.method_name = ""
-        self.languageFrom = primary_language
-        self.languageTo = secondary_language
+        self.primary = primary
+        self.secondary = secondary
         self.load_rules()
 
     # load rules from rules.txt located in associated folder
     def load_rules(self):
 
-        path = path_of_cognate_rules(self.languageFrom, self.languageTo, self.method_name)
+        self.load_rules_from_db()
 
-        self.load_rules_from_path(path)
+        if len(self.rules) == 0:
+            path = path_of_cognate_rules(self.primary, self.secondary, self.method_name)
+            self.load_rules_from_path(path)
 
     def load_rules_from_path(self, path):
 
         content = load_from_path(path)
 
-        self.rules = []
+        self.rules = dict()
         for line in content.splitlines():
             words = line.split()
             if len(words) == 1:
-                self.rules.append((words[0], ""))
+                self.rules[words[0]] = ""
             else:
-                self.rules.append((words[0],words[1]))
+                self.rules[words[0]] = words[1]
+
+    def load_rules_from_db(self):
+
+        self.rules = dict()
+        rules = TransformRules.find_all(self.primary, self.secondary)
+
+        for rule in rules:
+            self.rules[rule.fromString] = rule.toString
+
+
+    def save_rules_to_db(self):
+
+        def clear_corresponding_entries_in_db_rules(self):
+            table = Table('transform_rules', Base.metadata, autoload=True, autoload_with=BaseService.engine)
+            words = BaseService.session.query(table).filter(table.c.primary == self.primary). \
+                filter(table.c.secondary == self.secondary)
+            words.delete(synchronize_session=False)
+
+            clear_corresponding_entries_in_db_rules(self)
+
+        for key, value in self.rules.items():
+            BaseService.session.add(TransformRules(self.primary, self.secondary, key, value))
 
     # edit_distance including rules for substitution
-    def edit_distance(self, word1: str, word2: str):
+    def is_candidate(self, word1: str, word2: str):
 
         min_dist = self._edit_distance_rules_rec(word1, word2, 0)
         if min_dist < self.threshold:
@@ -63,12 +90,12 @@ class WordDistanceFactory(ABC):
         minDist = min(minDist, self._edit_distance_rules_rec(word1, word2, word1marker + 1))
 
         # recursion step, adjust word by a rule
-        for rule in self.rules:
-            if word1.find(rule[0], word1marker) == word1marker:
+        for key, value in self.rules.items():
+            if word1[word1marker:word1marker + len(key)] == key:
+                newword1 = word1[:word1marker] + key + word1[word1marker + len(key):]
                 minDist = min(minDist,
-                              self._edit_distance_rules_rec(word1.replace(rule[0], rule[1], 1), word2,
-                                                            word1marker + len(rule[1])))
-                print(rule)
+                              self._edit_distance_rules_rec(newword1, word2,
+                                                            word1marker + len(value)))
 
         return minDist
 
