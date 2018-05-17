@@ -37,7 +37,7 @@ class CognateTests(TestCase):
 
     @classmethod
     def testManualCompute(self):
-        cognate_info_fr_nl = CognateInfo("fr", "nl", LanguageAwareEditDistance)
+        cognate_info_fr_nl = CognateInfo("de", "fr", LanguageAwareEditDistance)
         cognate_info_fr_nl.compute()
 
         cognate_info_fr_nl.save_candidates()
@@ -66,6 +66,22 @@ class CognateTests(TestCase):
         assert(len(cognate_info_de_nl.blacklist) == len(cognate_info_de_nl2.blacklist))
         for key, value in cognate_info_de_nl.blacklist.items():
             assert(value == cognate_info_de_nl2.blacklist[key])
+
+    @classmethod
+    def testGenerateCandidates(self):
+        cognate_info_de_nl = CognateInfo("de", "nl", LanguageAwareEditDistance, "v1_manualevaluation")
+        cognate_info_de_nl.compute()
+
+        cognate_info_de_nl.save_candidates()
+        cognate_info_de_nl.cache_candidates_to_db()
+
+    @classmethod
+    def testGenerateCandidates(self):
+        cognate_info_de_nl = CognateInfo("de", "en", LanguageAwareEditDistance, "v1_manualevaluation")
+        cognate_info_de_nl.compute()
+
+        cognate_info_de_nl.save_candidates()
+        cognate_info_de_nl.cache_candidates_to_db()
 
     @classmethod
     def testLoadingFromDb(self):

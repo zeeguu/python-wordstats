@@ -10,11 +10,11 @@ def evaluate_cognates(languageFrom, languageTo, method, author:str = ""):
     print("other:   blacklist")
 
     cognateinfo = CognateInfo.load_cached(languageFrom, languageTo, method, author)
-    cognateinfo.save_candidates()
+
     for key, values in cognateinfo.candidates.items():
         for value in values:
-            if (key not in cognateinfo.blacklist.keys() or value not in cognateinfo.blacklist[key]) and\
-                (key not in cognateinfo.whitelist.keys() or value not in cognateinfo.whitelist[key]):
+
+            if not cognateinfo.is_evaluated(key, value):
                 print(key, value)
 
                 char = read_single_keypress()
@@ -30,4 +30,4 @@ def evaluate_cognates(languageFrom, languageTo, method, author:str = ""):
                     cognateinfo.add_to_blacklist(key, value)
                     cognateinfo.save_blacklist()
 
-evaluate_cognates("fr","nl", LanguageAwareEditDistance, "me")
+evaluate_cognates("de","en", LanguageAwareEditDistance, "v1_manualevaluation")
