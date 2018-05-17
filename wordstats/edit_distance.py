@@ -5,7 +5,7 @@ class LanguageAwareEditDistance(WordDistanceFactory):
     def __init__(self, primary, secondary, author:str = ""):
         super().__init__(primary, secondary, author)
         self.method_name = "edit_distance"
-        self.threshold = 0.3
+        self.threshold = 0.5
         self._initialize_distances()
 
     def _initialize_distances(self):

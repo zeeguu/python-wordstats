@@ -2,6 +2,10 @@ import codecs
 import os
 from datetime import datetime
 
+from python_translators.translators.glosbe_translator import Translator
+from python_translators.translators.glosbe_over_tor_translator import GlosbeOverTorTranslator
+from python_translators.translation_query import TranslationQuery
+
 from sqlalchemy import Table
 import configparser
 
@@ -17,6 +21,8 @@ from .cognate_db import *
 from .getchunix import read_single_keypress
 from .edit_distance_function_factory import WordDistanceFactory
 from collections import defaultdict
+
+from time import sleep
 
 
 class CognateInfo(object):
@@ -59,14 +65,55 @@ class CognateInfo(object):
     # def apply_distance_metric(self, wordlist1, wordlist2, func):
 
     def compute(self):
+
         wordlist1 = list(load_language_from_hermit(self.primary).word_info_dict.keys())
         wordlist2 = list(load_language_from_hermit(self.secondary).word_info_dict.keys())
 
         self.candidates = defaultdict(list)
+        i = 0
         for w1 in wordlist1:
             for w2 in wordlist2:
                 if self.distance_computer.is_candidate(w1, w2):
                     self.candidates[w1].append(w2)
+
+
+    def compute_translator(self, translator:Translator, save:Boolean = False):
+
+        wordlist = set(load_language_from_hermit(self.primary).word_info_dict.keys())
+
+        translator = translator(source_language=self.primary, target_language=self.secondary)
+        i = 0
+        for w1 in wordlist.difference(self.candidates.keys()):
+            sleep(1)
+            response = translator.translate(TranslationQuery(
+                query=w1,
+                max_translations=10,
+
+            ))
+
+            translations = [t['translation'] for t in response.translations[:]]
+            print(w1,": ", translations)
+
+
+            if len(translations) == 0:
+                self.candidates[w1].append("")
+
+            else:
+
+                for translation in translations:
+                    self.candidates[w1].append(translation)
+
+                    is_cognate = self.distance_computer.is_candidate(w1, translation)
+
+                    if is_cognate:
+                        self.add_to_whitelist(w1, translation)
+                    else:
+                        self.add_to_blacklist(w1, translation)
+
+                    if save:
+                        self.add_candidate_to_db(w1, translation)
+                        self.add_to_db(w1, translation, is_cognate)
+
 
     def has_cognates(self, primaryWord):
         return primaryWord in self.candidates.keys()
@@ -157,8 +204,8 @@ class CognateInfo(object):
         save_to_file(language_code_path, '\n'.join(lines))
 
     def is_evaluated(self, word_primary, word_secondary):
-        return (word_primary not in self.blacklist.keys() or word_secondary not in self.blacklist[word_primary]) and\
-                (word_primary not in self.whitelist.keys() or word_secondary not in self.whitelist[word_primary])
+        return (word_primary in self.blacklist.keys() and word_secondary in self.blacklist[word_primary]) or\
+                (word_primary in self.whitelist.keys() and word_secondary in self.whitelist[word_primary])
 
     def save_whitelist(self):
         """
@@ -274,7 +321,7 @@ class CognateInfo(object):
         BaseService.session.commit()
 
 
-    def add_to_db(self, primaryWord, secondaryWord):
+    def add_candidate_to_db(self, primaryWord, secondaryWord):
         """
         Try to add one cognate pair to candidate db.
 
