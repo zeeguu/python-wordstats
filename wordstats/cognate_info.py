@@ -14,7 +14,7 @@ from wordstats.loading_from_hermit import load_language_from_hermit
 from .word_info import WordInfo, UnknownWordInfo
 from .utils.mem_footprint import total_size
 from .base_service import BaseService, Base
-from .config import MAX_WORDS
+from .config import MAX_WORDS, SEPARATOR_PRIMARY, SEPARATOR_SECONDARY
 from .metrics_computers import *
 from .cognate_files_path import *
 from .cognate_db import *
@@ -84,7 +84,7 @@ class CognateInfo(object):
         translator = translator(source_language=self.primary, target_language=self.secondary)
         i = 0
         for w1 in wordlist.difference(self.candidates.keys()):
-            sleep(1)
+            #sleep(1)
             response = translator.translate(TranslationQuery(
                 query=w1,
                 max_translations=10,
@@ -178,18 +178,18 @@ class CognateInfo(object):
 
         language_code_path = path_of_cognate_whitelist(primary, secondary, author)
         for line in load_from_path(language_code_path).splitlines():
-            keyValue = line.split()
-            new_registry.whitelist[keyValue[0]] = keyValue[1:]
+            keyValue = line.split(SEPARATOR_PRIMARY)
+            new_registry.whitelist[keyValue[0]] = keyValue[1].split(SEPARATOR_SECONDARY)
 
         language_code_path = path_of_cognate_blacklist(primary, secondary, author)
         for line in load_from_path(language_code_path).splitlines():
-            keyValue = line.split()
-            new_registry.blacklist[keyValue[0]] = keyValue[1:]
+            keyValue = line.split(SEPARATOR_PRIMARY)
+            new_registry.blacklist[keyValue[0]] = keyValue[1].split(SEPARATOR_SECONDARY)
 
         language_code_path = path_of_cognate_candidates(primary, secondary, new_registry.distance_computer.method_name)
         for line in load_from_path(language_code_path).splitlines():
-            keyValue = line.split()
-            new_registry.candidates[keyValue[0]] = keyValue[1:]
+            keyValue = line.split(SEPARATOR_PRIMARY)
+            new_registry.candidates[keyValue[0]] = keyValue[1].split(SEPARATOR_SECONDARY)
 
         return new_registry
 
@@ -199,7 +199,7 @@ class CognateInfo(object):
 
         lines = []
         for k, v in self.candidates.items():
-            lines.append(k + " " + " ".join(str(x) for x in v))
+            lines.append(k + SEPARATOR_PRIMARY + SEPARATOR_SECONDARY.join(str(x) for x in v))
 
         save_to_file(language_code_path, '\n'.join(lines))
 
@@ -216,7 +216,7 @@ class CognateInfo(object):
         language_code_path = path_of_cognate_whitelist(self.primary, self.secondary, self.author)
         lines = []
         for k, v in self.whitelist.items():
-            lines.append(k + " " + " ".join(str(x) for x in v))
+            lines.append(k + SEPARATOR_PRIMARY + SEPARATOR_SECONDARY.join(str(x) for x in v))
 
         save_to_file(language_code_path, '\n'.join(lines))
 
@@ -229,7 +229,7 @@ class CognateInfo(object):
         language_code_path = path_of_cognate_blacklist(self.primary, self.secondary, self.author)
         lines = []
         for k, v in self.blacklist.items():
-            lines.append(k + " " + " ".join(str(x) for x in v))
+            lines.append(k + SEPARATOR_PRIMARY + SEPARATOR_SECONDARY.join(str(x) for x in v))
 
         save_to_file(language_code_path, '\n'.join(lines))
 

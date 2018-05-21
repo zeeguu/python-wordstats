@@ -12,4 +12,7 @@ WHITELIST= 'whitelist'
 RULES= 'rules'
 CANDIDATES= 'candidates'
 
-MAX_WORDS = 1000
+SEPARATOR_PRIMARY= " => "
+SEPARATOR_SECONDARY= "; "
+
+MAX_WORDS = 50000
