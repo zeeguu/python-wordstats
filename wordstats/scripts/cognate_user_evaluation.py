@@ -1,5 +1,5 @@
 from wordstats.cognate_info import CognateInfo
-from wordstats.getchunix import read_single_keypress
+from portability.getchunix import read_single_keypress
 from wordstats.edit_distance import LanguageAwareEditDistance
 
 # note: only executable in terminal, reactive to one-key stroke
