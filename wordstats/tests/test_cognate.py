@@ -1,11 +1,7 @@
 from unittest import TestCase
 
-from wordstats.loading_from_hermit import load_language_from_hermit
-from wordstats.edit_distance_absolute import WordDistanceAbsolute
 from wordstats.edit_distance import LanguageAwareEditDistance
 from wordstats.edit_distance_overlap import WordDistanceOverlap
-
-from wordstats.cognate_files_path import *
 
 from wordstats.cognate_info import CognateInfo
 from random import random

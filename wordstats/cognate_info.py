@@ -1,28 +1,20 @@
-import codecs
-import os
 from datetime import datetime
 
 from python_translators.translators.glosbe_translator import Translator
-from python_translators.translators.glosbe_over_tor_translator import GlosbeOverTorTranslator
 from python_translators.translation_query import TranslationQuery
 
 from sqlalchemy import Table
-import configparser
 
+from file_handling.file_operations import load_from_path, save_to_file
 from wordstats.loading_from_hermit import load_language_from_hermit
 
-from .word_info import WordInfo, UnknownWordInfo
 from .utils.mem_footprint import total_size
-from .base_service import BaseService, Base
-from .config import MAX_WORDS, SEPARATOR_PRIMARY, SEPARATOR_SECONDARY
-from .metrics_computers import *
-from .cognate_files_path import *
+from .base_service import BaseService
+from .config import SEPARATOR_PRIMARY, SEPARATOR_SECONDARY
+from file_handling.cognate_files_path import *
 from .cognate_db import *
-from .getchunix import read_single_keypress
 from .edit_distance_function_factory import WordDistanceFactory
 from collections import defaultdict
-
-from time import sleep
 
 
 class CognateInfo(object):

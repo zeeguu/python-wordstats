@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from wordstats.cognate_files_path import *
-import configparser
+from file_handling.cognate_files_path import *
+from file_handling.file_operations import load_from_path
 from .rules_db import TransformRules
 from sqlalchemy import Table
 from .base_service import BaseService, Base

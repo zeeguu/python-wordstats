@@ -1,6 +1,3 @@
-import codecs
-import configparser
-from .cognate_files_path import *
 from .edit_distance_function_factory import WordDistanceFactory
 
 class WordDistanceOverlap(WordDistanceFactory):
