@@ -1,7 +1,7 @@
 # "hermit dave" has a nice repository of word frequencies
 # computed for many languages based on movie subtitles
 from wordstats.language_info import LanguageInfo
-from config import DATA_FOLDER
+from wordstats.config import DATA_FOLDER
 
 
 def path_of_hermit_language_file(language):

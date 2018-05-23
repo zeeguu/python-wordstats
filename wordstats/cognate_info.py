@@ -5,15 +5,16 @@ from python_translators.translation_query import TranslationQuery
 
 from sqlalchemy import Table
 
-from file_handling.file_operations import load_from_path, save_to_file
-from file_handling.loading_from_hermit import load_language_from_hermit
+from wordstats.file_handling.file_operations import *
+from wordstats.file_handling.loading_from_hermit import *
+from wordstats.file_handling.cognate_files_path import *
 
 from .utils.mem_footprint import total_size
 from .base_service import BaseService
 from .config import SEPARATOR_PRIMARY, SEPARATOR_SECONDARY
-from file_handling.cognate_files_path import *
+
 from .cognate_db import *
-from .edit_distance_function_factory import WordDistanceFactory
+from .edit_distance_function_factory import WordDistance
 from collections import defaultdict
 
 
@@ -29,7 +30,7 @@ class CognateInfo(object):
 
     """
 
-    def __init__(self, primary, secondary, distance_computer_class: WordDistanceFactory, author:str = ""):
+    def __init__(self, primary, secondary, distance_computer_class: WordDistance, author:str = ""):
         """
 
             either load from file, or compute if needed
@@ -54,10 +55,15 @@ class CognateInfo(object):
         return best_dict
 
     # generates candidates based on distance function func and word lists
-    # def apply_distance_metric(self, wordlist1, wordlist2, func):
+    def generate_candidates(self):
+        """
+            Generates candidates by comparing each possible pair of words in two
+            language lists
 
-    def compute(self):
+            ...
 
+            :return:
+        """
         wordlist1 = list(load_language_from_hermit(self.primary).word_info_dict.keys())
         wordlist2 = list(load_language_from_hermit(self.secondary).word_info_dict.keys())
 
@@ -68,9 +74,20 @@ class CognateInfo(object):
                 if self.distance_computer.is_candidate(w1, w2):
                     self.candidates[w1].append(w2)
 
+    # generate candidates and automatically evaluates candidates to be cognates
+    # optionally save candidates to database as they are found
+    def generate_candidates_translator(self, translator:Translator, save:Boolean = False):
+        """
+            Generates candidates by translating words through an API
+            the translations are stored in candidates
+            automatically evaluates candidates to be cognates
+            optionally save candidates to database as they are found
 
-    def compute_translator(self, translator:Translator, save:Boolean = False):
-
+            ...
+            :param: A translator. See python_translators repository for options
+            :param: Boolean for toggling saving candidate/evaluation after each translation
+            :return:
+        """
         wordlist = set(load_language_from_hermit(self.primary).word_info_dict.keys())
 
         translator = translator(source_language=self.primary, target_language=self.secondary)
@@ -126,7 +143,7 @@ class CognateInfo(object):
     # ========================
 
     @classmethod
-    def load_cached(cls, primary, secondary, distance_computer_class: WordDistanceFactory, author:str = ""):
+    def load_cached(cls, primary, secondary, distance_computer_class: WordDistance, author:str = ""):
 
         new_registry = cls.load_from_db(primary, secondary,
                                         distance_computer_class, author)
@@ -143,7 +160,6 @@ class CognateInfo(object):
 
         new_registry = cls(primary, secondary,
                            distance_computer_class, author)
-        new_registry.compute()              # compute candidates
 
         return new_registry
 
@@ -318,7 +334,7 @@ class CognateInfo(object):
         Try to add one cognate pair to candidate db.
 
         :param primaryWord: word from primary language
-        :param secondaryWord: word from secundary language
+        :param secondaryWord: word from secondary language
         :return: None
         """
         try:
@@ -335,7 +351,7 @@ class CognateInfo(object):
         Try to add one cognate pair to evaluation db.
 
         :param primaryWord: word from primary language
-        :param secondaryWord: word from secundary language
+        :param secondaryWord: word from secondary language
         :param whitelist: True to add cognate pair to whitelist otherwise blacklist
         :return: None
         """

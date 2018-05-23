@@ -1,5 +1,5 @@
 # Lazy initialized object
-from file_handling.loading_from_hermit import load_language_from_hermit
+from wordstats.file_handling.loading_from_hermit import load_language_from_hermit
 
 
 class Word(object):

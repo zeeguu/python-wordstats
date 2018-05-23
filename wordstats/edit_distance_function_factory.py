@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from file_handling.cognate_files_path import *
-from file_handling.file_operations import load_from_path
+from wordstats.file_handling.cognate_files_path import *
+from wordstats.file_handling.file_operations import *
 from .rules_db import TransformRules
 from sqlalchemy import Table
 from .base_service import BaseService, Base
@@ -9,7 +9,7 @@ from .base_service import BaseService, Base
 # abstract class for creating a distance measure between two rules
 # support for loading from .cfg file and loading rules is supplied
 # abstract methods are specific to the distance measure
-class WordDistanceFactory(ABC):
+class WordDistance(ABC):
 
     def __init__(self, primary, secondary, author:str = ""):
         super().__init__()
