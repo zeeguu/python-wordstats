@@ -1,9 +1,6 @@
-import codecs
-import configparser
-from .cognate_files_path import *
-from .edit_distance_function_factory import WordDistanceFactory
+from .edit_distance_function_factory import WordDistance
 
-class WordDistanceAbsolute(WordDistanceFactory):
+class WordDistanceAbsolute(WordDistance):
     def __init__(self, primary, secondary, author:str = ""):
         super().__init__(primary, secondary, author)
         self.replace_distance = 2

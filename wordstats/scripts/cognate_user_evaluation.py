@@ -1,6 +1,6 @@
 from wordstats.cognate_info import CognateInfo
-from wordstats.getchunix import read_single_keypress
-from wordstats.edit_distance import LanguageAwareEditDistance
+from portability.getchunix import read_single_keypress
+from wordstats.edit_distance import EditDistance
 
 # note: only executable in terminal, reactive to one-key stroke
 def evaluate_cognates(languageFrom, languageTo, method, author:str = ""):
@@ -30,4 +30,4 @@ def evaluate_cognates(languageFrom, languageTo, method, author:str = ""):
                     cognateinfo.add_to_blacklist(key, value)
                     cognateinfo.save_blacklist()
 
-evaluate_cognates("de","en", LanguageAwareEditDistance, "v1_manualevaluation")
+evaluate_cognates("de","en", EditDistance, "v1_manualevaluation")

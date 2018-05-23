@@ -7,8 +7,8 @@ from .base_service import BaseService, Base
 from .word_info import WordInfo
 from .language_info import LanguageInfo
 from .cognate_info import CognateInfo
-from .getchunix import _Getch
-from .edit_distance_function_factory import WordDistanceFactory
+from portability.getchunix import _Getch
+from .edit_distance_function_factory import WordDistance
 
 # Create all tables in the engine. equivalent to "Create Table" in SQL
 Base.metadata.create_all(BaseService.engine)
