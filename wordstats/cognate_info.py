@@ -6,7 +6,7 @@ from python_translators.translation_query import TranslationQuery
 from sqlalchemy import Table
 
 from file_handling.file_operations import load_from_path, save_to_file
-from wordstats.loading_from_hermit import load_language_from_hermit
+from file_handling.loading_from_hermit import load_language_from_hermit
 
 from .utils.mem_footprint import total_size
 from .base_service import BaseService
