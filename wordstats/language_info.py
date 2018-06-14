@@ -63,9 +63,14 @@ class LanguageInfo(object):
 
         word_rank = 0
 
-        package_directory = os.path.dirname(os.path.abspath(__file__))
+        full_file_name = file_name
+        import os.path
+        if not os.path.isfile(full_file_name):
+            # we have a relative path; append it to the current module path
+            package_directory = os.path.dirname(os.path.abspath(__file__))
+            full_file_name = package_directory + os.sep + file_name
 
-        with codecs.open(package_directory + os.sep + file_name, encoding="utf8") as words_file:
+        with codecs.open(full_file_name, encoding="utf8") as words_file:
             words_list = words_file.read().splitlines()
 
             for word_and_freq in words_list:
@@ -130,6 +135,7 @@ class LanguageInfo(object):
             words.delete(synchronize_session=False)
 
         clear_corresponding_entries_in_db(self)
+
         for word_info in list(self.word_info_dict.values()):
             BaseService.session.add(word_info)
         BaseService.session.commit()
