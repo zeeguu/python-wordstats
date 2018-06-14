@@ -16,7 +16,7 @@ from .config import SEPARATOR_PRIMARY, SEPARATOR_SECONDARY
 from .cognate_db import *
 from .edit_distance_function_factory import WordDistance
 from collections import defaultdict
-
+from nltk import SnowballStemmer
 
 class CognateInfo(object):
     """
@@ -76,7 +76,7 @@ class CognateInfo(object):
 
     # generate candidates and automatically evaluates candidates to be cognates
     # optionally save candidates to database as they are found
-    def generate_candidates_translator(self, translator:Translator, save:Boolean = False):
+    def generate_candidates_translator(self, translator:Translator, save:Boolean = False, stem: Boolean = False):
         """
             Generates candidates by translating words through an API
             the translations are stored in candidates
@@ -88,40 +88,65 @@ class CognateInfo(object):
             :param: Boolean for toggling saving candidate/evaluation after each translation
             :return:
         """
+
+        language_map = {'da': 'Danish',
+                            'de': 'german',
+                            'el': 'greek',
+                            'en': 'english',
+                            'es': 'spanish',
+                            'fr': 'french',
+                            'it': 'italian',
+                            'nl': 'dutch',
+                            'no': 'norwegian',
+                            'pt': 'portuguese',
+                            'ro': 'romanian'}
+
+        if stem:
+            stemmer = SnowballStemmer(language_map[self.primary])
+
         wordlist = set(load_language_from_hermit(self.primary).word_info_dict.keys())
 
         translator = translator(source_language=self.primary, target_language=self.secondary)
         i = 0
-        for w1 in wordlist.difference(self.candidates.keys()):
+
+        for w in wordlist.difference(self.candidates.keys()):
+
+            if stem:
+                w_stemmed = stemmer.stem(w.lower())
+                if w_stemmed in self.candidates:
+                    continue
+
             #sleep(1)
             response = translator.translate(TranslationQuery(
-                query=w1,
+                query=w,
                 max_translations=10,
 
             ))
 
             translations = [t['translation'] for t in response.translations[:]]
-            print(w1,": ", translations)
+            print(w,": ", translations)
 
+            if stem:
+                w = w_stemmed
 
             if len(translations) == 0:
-                self.candidates[w1].append("")
+                self.candidates[w].append("")
 
             else:
 
                 for translation in translations:
-                    self.candidates[w1].append(translation)
+                    self.candidates[w].append(translation)
 
-                    is_cognate = self.distance_computer.is_candidate(w1, translation)
+                    is_cognate = self.distance_computer.is_candidate(w, translation)
 
                     if is_cognate:
-                        self.add_to_whitelist(w1, translation)
+                        self.add_to_whitelist(w, translation)
                     else:
-                        self.add_to_blacklist(w1, translation)
+                        self.add_to_blacklist(w, translation)
 
                     if save:
-                        self.add_candidate_to_db(w1, translation)
-                        self.add_to_db(w1, translation, is_cognate)
+                        self.add_candidate_to_db(w, translation)
+                        self.add_to_db(w, translation, is_cognate)
 
 
     def has_cognates(self, primaryWord):
