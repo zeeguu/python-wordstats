@@ -1,3 +1,4 @@
+
 db_uri = 'sqlite:///wordinfo.db'
 
 # for mysql, we want to declare the default character encoding

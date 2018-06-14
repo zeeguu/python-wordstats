@@ -16,12 +16,13 @@ from wordstats.edit_distance import EditDistance
 
 from python_translators.translators.glosbe_pending_translator import GlosbePendingTranslator
 
-languageFrom = "fr"
-languageTo = "nl"
+languageFrom = "de"
+languageTo = "en"
 cognateInfo = CognateInfo.load_cached(languageFrom, languageTo, EditDistance)
+
 print(len(cognateInfo.candidates))
 
-cognateInfo.generate_candidates_translator(GlosbePendingTranslator, save=True)
+cognateInfo.generate_candidates_translator(GlosbePendingTranslator, save=True, stem=True)
 cognateInfo.save_candidates()
 cognateInfo.save_blacklist()
 cognateInfo.save_whitelist()
