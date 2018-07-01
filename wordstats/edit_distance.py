@@ -2,6 +2,7 @@ from .edit_distance_function_factory import WordDistance
 from nltk.metrics.distance import edit_distance
 
 class EditDistance(WordDistance):
+
     def __init__(self, primary, secondary, author:str = ""):
         super().__init__(primary, secondary, author)
         self.method_name = "edit_distance"

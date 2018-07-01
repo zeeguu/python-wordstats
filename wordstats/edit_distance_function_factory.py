@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+
+from wordstats.config import SEPARATOR_PRIMARY
 from wordstats.file_handling.cognate_files_path import *
 from wordstats.file_handling.file_operations import *
 from .rules_db import TransformRules
@@ -37,7 +39,7 @@ class WordDistance(ABC):
 
         self.rules = dict()
         for line in content.splitlines():
-            words = line.split()
+            words = line.split(SEPARATOR_PRIMARY)
             if len(words) == 1:
                 self.rules[words[0]] = ""
             else:
@@ -89,16 +91,30 @@ class WordDistance(ABC):
         if word1marker >= len(word1):
             return minDist
 
-        # recursion step, no adjustment
-        minDist = min(minDist, self._edit_distance_rules_rec(word1, word2, word1marker + 1))
-
         # recursion step, adjust word by a rule
+        #todo: test this
         for key, value in self.rules.items():
-            if word1[word1marker:word1marker + len(key)] == key:
-                newword1 = word1[:word1marker] + key + word1[word1marker + len(key):]
+            if len(key) == 0 or len(value) == 0:
+                continue
+            if key[:1] == '$' and value[:1] == '$' and word1marker == 0 and word1[0:word1marker + len(key) - 1] == key[1:]:
+                newword1 = word1[:word1marker] + value[1:] + word1[word1marker + len(key) - 1:]
+                minDist = min(minDist,
+                              self._edit_distance_rules_rec(newword1, word2,
+                                                            word1marker + len(value) - 1))
+            elif key[-1:] == '$' and value[-1:] == '$' and word1marker == len(word1) - len(key) + 1 and word1[len(word1) - len(key) + 1:] == key[:-1]:
+                newword1 = word1[:word1marker] + value[:-1] + word1[word1marker + len(key) - 1:]
+                minDist = min(minDist,
+                              self._edit_distance_rules_rec(newword1, word2,
+                                                            word1marker + len(value) - 1))
+
+            elif word1[word1marker:word1marker + len(key)] == key:
+                newword1 = word1[:word1marker] + value + word1[word1marker + len(key):]
                 minDist = min(minDist,
                               self._edit_distance_rules_rec(newword1, word2,
                                                             word1marker + len(value)))
+
+        # recursion step, no adjustment
+        minDist = min(minDist, self._edit_distance_rules_rec(word1, word2, word1marker + 1))
 
         return minDist
 
