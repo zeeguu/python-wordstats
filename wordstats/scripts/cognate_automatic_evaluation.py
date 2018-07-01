@@ -1,28 +1,40 @@
 
 """
     script used for automatically generating cognates.
-    takes an existing cognateinfo or creates a new cognateinfo and proceeds
-    to query Glosbe for translations which will be stored in the candidates file
-    each word in the wordlist specified by languageFrom is stored with all its possible translations in the
-    candidates dictionary
-    cognativity between words is automatically evaluated as well and word - translation pairs are stored in the
-    blacklist or whitelist accordingly
+    takes an existing cognateEvaluations or creates a new cognateEvaluations and proceeds
+    to parse the dict of translations for word pairs and evaluates its cognacy based on EditDistance similarity measure
+    word pairs are either stored in the blacklist or whitelist dict indicating a non-cognate or cognate respectively
 
 """
 
 
-from wordstats.cognate_info import CognateInfo
+from wordstats.cognate_evaluation import CognateEvaluation
+from wordstats.translate import Translate
 from wordstats.edit_distance import EditDistance
 
 from python_translators.translators.glosbe_pending_translator import GlosbePendingTranslator
 
-languageFrom = "de"
-languageTo = "en"
-cognateInfo = CognateInfo.load_cached(languageFrom, languageTo, EditDistance)
+languageFrom = "lang1"
+languageTo = "lang2"
 
-print(len(cognateInfo.candidates))
+measure = EditDistance(languageFrom, languageTo)
+measure.threshold = 2
 
-cognateInfo.generate_candidates_translator(GlosbePendingTranslator, save=True, stem=True)
-cognateInfo.save_candidates()
-cognateInfo.save_blacklist()
-cognateInfo.save_whitelist()
+cognateEvaluations = CognateEvaluation(languageFrom, languageTo, measure)
+
+#clear current cognates by saving over time
+cognateEvaluations.cache_evaluation_to_db()
+cognateEvaluations.save_whitelist()
+cognateEvaluations.save_blacklist()
+print(cognateEvaluations.blacklist)
+cognateEvaluations = CognateEvaluation.load_cached(languageFrom, languageTo, measure)
+
+print(len(cognateEvaluations.whitelist))
+
+translations = Translate.load_cached(languageFrom,languageTo)
+
+cognateEvaluations.generate_cognates(translations.translations, save=False)
+cognateEvaluations.save_blacklist()
+cognateEvaluations.save_whitelist()
+
+print(cognateEvaluations.blacklist)

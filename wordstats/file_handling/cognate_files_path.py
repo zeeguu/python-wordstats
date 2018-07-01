@@ -8,8 +8,8 @@ def path_of_cognate_languages(primary, secondary):
     return file_path
 
 
-def path_of_cognate_candidates(primary, secondary, method_name):
-    return _path_to_cognate_file(primary, secondary, CANDIDATES, method_name)
+def path_of_translations(primary, secondary):
+    return _path_to_cognate_file(primary, secondary, CANDIDATES)
 
 
 def path_of_cognate_blacklist(primary, secondary, author: str = ""):
