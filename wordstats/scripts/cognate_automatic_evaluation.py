@@ -6,35 +6,39 @@
     word pairs are either stored in the blacklist or whitelist dict indicating a non-cognate or cognate respectively
 
 """
-
-
+from wordstats import CognateDatabase
 from wordstats.cognate_evaluation import CognateEvaluation
 from wordstats.translate import Translate
 from wordstats.edit_distance import EditDistance
 
 from python_translators.translators.glosbe_pending_translator import GlosbePendingTranslator
 
-languageFrom = "lang1"
-languageTo = "lang2"
+
+languageFrom = "de"
+languageTo = "nl"
 
 measure = EditDistance(languageFrom, languageTo)
-measure.threshold = 2
+measure.threshold = 0.4
 
-cognateEvaluations = CognateEvaluation(languageFrom, languageTo, measure)
+clearEntries = False
+saveOneAtATime = True
 
-#clear current cognates by saving over time
-cognateEvaluations.cache_evaluation_to_db()
-cognateEvaluations.save_whitelist()
-cognateEvaluations.save_blacklist()
-print(cognateEvaluations.blacklist)
+if clearEntries:
+    cognateEvaluations = CognateEvaluation(languageFrom, languageTo, measure)
+
+    CognateDatabase.clear_entries(languageFrom,languageTo)
+    cognateEvaluations.save_whitelist()
+    cognateEvaluations.save_blacklist()
+
+
 cognateEvaluations = CognateEvaluation.load_cached(languageFrom, languageTo, measure)
+translations = Translate.load_from_path(languageFrom,languageTo)
 
-print(len(cognateEvaluations.whitelist))
+cognateEvaluations.generate_cognates(translations.translations, save=saveOneAtATime, only_one=True)
 
-translations = Translate.load_cached(languageFrom,languageTo)
+if not saveOneAtATime:
+    cognateEvaluations.cache_evaluation_to_db()
 
-cognateEvaluations.generate_cognates(translations.translations, save=False)
 cognateEvaluations.save_blacklist()
 cognateEvaluations.save_whitelist()
 
-print(cognateEvaluations.blacklist)

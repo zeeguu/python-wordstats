@@ -13,13 +13,13 @@ from wordstats.translate import Translate
 
 from python_translators.translators.glosbe_pending_translator import GlosbePendingTranslator
 
-languageFrom = "lang1"
-languageTo = "lang2"
+languageFrom = "de"
+languageTo = "en"
 
-translations = Translate.load_cached(languageFrom, languageTo)
+translations = Translate.load_from_path(languageFrom, languageTo)
 
 print(len(translations.translations))
 
-translations.generate_translations(GlosbePendingTranslator,"Tochter", save=True)
 translations.generate_translations_from_hermit(GlosbePendingTranslator, save=True)
+
 translations.save_translations()

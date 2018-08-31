@@ -4,20 +4,11 @@
 
 """
 
-# apply every possible combination of substitution rules until the least amount of translation is found
 from wordstats.config import SEPARATOR_PRIMARY
 from wordstats.cognate_evaluation import CognateEvaluation
 from wordstats.edit_distance import EditDistance
 from collections import defaultdict
 
-"""
-two strings, possible options: match, insert, delete, substitute
-go through all combinations, combination increases parsing idx
-stop criterion: end of both strings or maximum amount of operations reached
-return best list if amount of operations is below the current amount
-
-
-"""
 
 REPLACE_SYMBOL = '~'
 """
@@ -26,15 +17,15 @@ REPLACE_SYMBOL = '~'
     in order to transform one word to the other
 """
 
+
+# recursive edit_distance function, aligned strings are returned from which rules can be extracted
 def _edit_dist_rec(s1, s2, idx, curdist, maxdist, rule_list, string_alignment):
 
     #print(s1, s2, idx, curdist, maxdist, rule_list, string_alignment)
 
     # end of strings reached
     if idx == len(s1) and idx == len(s2):
-        #print("evaluate")
         if curdist <= maxdist:
-            #print("lower")
             string_alignment = rule_list
             maxdist = curdist
 
@@ -57,7 +48,6 @@ def _edit_dist_rec(s1, s2, idx, curdist, maxdist, rule_list, string_alignment):
                                                          string_alignment)
 
     # delete
-
     s2new = s2[:idx] + REPLACE_SYMBOL + s2[idx:]
     new_rule = (s1,s2new)
     (maxdist, string_alignment) = _edit_dist_rec(s1, s2new, idx + 1, curdist + 1, maxdist, new_rule,
@@ -113,7 +103,7 @@ def extract_rules(s1_align, s2_align):
 
 
 languageFrom = "de"
-languageTo = "en"
+languageTo = "nl"
 cognateInfo = CognateEvaluation.load_from_path(languageFrom, languageTo, EditDistance)
 
 print(len(cognateInfo.whitelist))
@@ -151,16 +141,12 @@ for key, cogtranslations in cognate_pairs:
             applied_rule_frequency += 1
             rule_list[rule] += 1
 
-# determine chi-square of each rule, uniquely evaluated by considering the occurence
+# determine chi-square for each rule, uniquely evaluated by considering the occurence
 # of the right and/or left side of the rule in total compared to right and left side simultaneously
 rule_list_score = dict()
 for r_from in list(rule_list.keys()):
     lsr = r_from[0]
     rsr = r_from[1]
-
-    if rule_list[r_from] < number_of_cognates/1000:
-        rule_list_score[r_from] = 0
-        continue
 
     applicable1 = 0
     applicable2 = 0
@@ -177,19 +163,23 @@ for r_from in list(rule_list.keys()):
 
     rule_list_score[r_from] = ((observed-expected)**2)/expected
 
-
-
 rules_sorted = sorted(rule_list_score.items(), key=lambda x: x[1], reverse=True)
 
 
 for rule in rules_sorted:
-    print(rule[0][0] + SEPARATOR_PRIMARY + rule[0][1] + " " + str(rule[1]))
+    print(rule[0][0] + SEPARATOR_PRIMARY + rule[0][1] + "#" + str(rule[1]))
 
-if True:
-    for rule in rules_sorted:
-        print(rule[0][0] + SEPARATOR_PRIMARY + rule[0][1] + '#')
 
-    print("presentation form")
+# filter out rules that are below the threshold
+threshold = 100
+rules_filtered = []
+for rule in rules_sorted:
+    if rule[1] >= threshold:
+        rules_filtered.append((rule[0][0], rule[0][1]))
+
+# format ready to store in rules.txt
+if False:
     for rule in rules_sorted:
-        print(rule[0][0].replace('$','#') + '/' + rule[0][1].replace('$','#'))
+        print(rule[0][0] + SEPARATOR_PRIMARY + rule[0][1])
+
 

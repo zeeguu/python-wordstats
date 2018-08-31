@@ -92,7 +92,6 @@ class WordDistance(ABC):
             return minDist
 
         # recursion step, adjust word by a rule
-        #todo: test this
         for key, value in self.rules.items():
             if len(key) == 0 or len(value) == 0:
                 continue
@@ -117,9 +116,6 @@ class WordDistance(ABC):
         minDist = min(minDist, self._edit_distance_rules_rec(word1, word2, word1marker + 1))
 
         return minDist
-
-
-    # methods to be implemented
 
     # method that determines whether two strings form a cognate
     # RETURN: float indicating distance between two strings, 0 identical, 1 completely different

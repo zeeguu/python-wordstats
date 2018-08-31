@@ -84,6 +84,7 @@ class Translate(object):
                         self.translations[w].append(translation)
                         if save:
                             self.add_translation_to_db(w, translation)
+
     def generate_translations_from_hermit(self, translator:Translator, save:Boolean = False, repeat:Boolean = False):
         language_map = {'da': 'Danish',
                         'de': 'german',

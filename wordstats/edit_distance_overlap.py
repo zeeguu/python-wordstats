@@ -1,5 +1,7 @@
 from .edit_distance_function_factory import WordDistance
 
+# normalized distance function based on size of largest substring present in both words
+
 class WordDistanceOverlap(WordDistance):
     def __init__(self, primary, secondary, author:str = ""):
         super().__init__(primary, secondary, author)

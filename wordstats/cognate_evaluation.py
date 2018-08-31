@@ -8,7 +8,6 @@ from sqlalchemy import Table
 from wordstats.file_handling.file_operations import *
 from wordstats.file_handling.loading_from_hermit import *
 from wordstats.file_handling.cognate_files_path import *
-from wordstats.translate import Translate
 
 from .utils.mem_footprint import total_size
 from .base_service import BaseService
@@ -23,7 +22,7 @@ class CognateEvaluation(object):
     """
 
         Responsibilities of this class:
-        - compute the cognates
+        - evaluate the cognates
         - maintain the blacklist / whitelist (add_to_whitelist / add_to_blacklist / save_evaluation )
         - load /save blacklist / whitelist / candidates from file / DB to memory
 
@@ -66,9 +65,13 @@ class CognateEvaluation(object):
 
         i = 0
         for word_primary, words_secondary in translations.items():
-            if only_one == True and (len(self.whitelist[word_primary]) or self.blacklist[word_primary] > 0):
-                return
+            print(i)
+            i+=1
+
             for word_secondary in words_secondary:
+                if only_one and word_primary in self.whitelist:
+                    break
+                print(word_primary, word_secondary)
                 self.evaluate_wordpair(word_primary, word_secondary, save)
 
     def has_cognates(self, word_primary):
