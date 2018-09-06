@@ -1,36 +1,25 @@
 
-cognates are pairs of words between different languages which have the same meaning
-and "look" alike, the "look" alike can be understood as a large overlap between two words
-or small edit distance in between words
+Translate:
+    Responsible for creating translations between two pair of languages.
+    Either from Hermit frequency word data (function generate_translations_from_hermit) or
+    from a given text (generate_translations).
+    Translations can be stored/loaded in/from textfile (candidates.txt) or database.
+    See scripts translate_article and parse_translation_batch for an example.
 
-The following methods don't take meaning into account and simply judge by similarity whether
-two words form a cognate.
+CognateEvaluation:
+    Responsible for evaluating word pairs with same semantics for cognativity given a distance_class.
+    Either from a Translation object with stored words (generate_cognates) or
+    given a word pair (evaluate_wordpair).
+    Cognates are stored/loaded in/form textfile or database. The evaluated word pairs stored in
+    textfile are split in whitelist.txt and blacklist.txt meaning cognate and non-cognate respectively.
+    For an example see script cognate_automatic_evaluation.
 
-cognates are stored under the "language_data/cognates/language_ids/method_name" folder
-where language_ids can be any combination of language codes such as "denl" formed from
-"de" and "nl" and "method_name" describes the method used to find cognates.
-The folder contains several files:
-candidates.txt: contains pairs of words that form possible cognates
-rules.txt: pairs of strings describing a transformation of a string to another (from to)
-config.cfg: parameters to use for specified method such as word threshold
-
-In addition the language_ids folder contains two files: "blacklist.txt" and "whitelist.txt"
-which are cognates evaluated by the user i.e. cognates from "candidates.txt" are copied to
-"whitelist.txt" or "blacklist.txt" after the user confirms it is a cognate or not a cognate respectively.
-
-
-cognate_info.py: structure holding the cognate candidates as well as blacklisted/whitelisted cognates
-    contains all methods necessary for manipulating these sets and saving them to file/db
-loading_from_cognates.py: functions that abstract the folder/file logic from the rest of the
-    source files, used to obtain file paths or save/load from files
-cognate_db.py: contains structure for saving cognates to db as well as methods for retrieving cognates
-
-edit_distance_function_factory.py: abstract class from which other edit_distance functions can be made.
-    loading from configuration file and rules file is provided here. Inherited classes only need to provide
-    edit_distance method which either returns True for cognate or False for not a cognate and
-    initialize_from_config for loading parameters of the edit_distance function
-    see edit_distance_XXX.py for examples.
-
-cognate_user_evaluation.py: example function for evaluating cognates by the user interactively through the terminal
-
-
+EditDistance:
+    Three methods are implemented which implement different ways of measuring a distance between two
+    word pairs. edit_distance is the recommended distance measure which measured the minimum amount of
+    deletions/substitutions/insertions needed to transform one word to another and normalizes the
+    number of edits by the length of the largest word.
+    edit_distance functions can be given an optional list of translations rules (rules.txt) which
+    describes a substitution of strings and does not contribute to length.
+    To be used in conjuction with CognateEvaluation where first the distance function is created
+    to your liking and then given to CognateEvaluation.

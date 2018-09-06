@@ -1,0 +1,29 @@
+
+This document describes the process of obtaining translation rules between two language pairs.
+
+1. Obtain translations:
+    -Use translate_article to obtain specific translations from stored articles.
+     Translations are obtained from Glosbe API.
+    -generate_translations goes through Hermit Dave's frequency word list and translates them through
+     Glosbe's API.
+    -Words not translated can be manually translated by providing the words to be translated in a from.txt file
+     with newline as delimiter and the translation in a to.txt file.
+     Executing parse_translation_batch then stores these translations.
+     Recommended to use Google translate or reverso in order to translate the words in from.txt.
+
+2. obtain cognates
+    -execute cognate_automatic_evaluation with a threshold of 0.6 with language pairs
+    -cognates will be stored in whitelist, blacklist.txt and cached
+
+3. Obtain rules
+    -execute create_rules with language pair codes
+    -copy rules over in rules.txt
+
+4. obtain cognates
+    -execute cognate_automatic_evaluation again with a lower threshold of 0.4 with language pairs
+    -rules are now applied
+
+The whitelist created after the 4th step is the final cognate list
+if step 2 or 4 can take long due to long string comparison, recommended to evaluate these long strings manually
+or throw away.
+
