@@ -31,6 +31,9 @@ setuptools.setup(
     description="Python Class for Word Statistics ",
     keywords="second language acquisition api",
     package_data={'': extra_files},
+    dependency_links=[
+        "https://github.com/zeeguu-ecosystem/Python-Translators/tarball/master#egg=python_translators"],
     install_requires=("configobj",
-                      "sqlalchemy")
+                      "sqlalchemy",
+                      'python_translators')
 )

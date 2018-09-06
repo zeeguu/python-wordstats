@@ -2,7 +2,7 @@
 from unittest import TestCase
 
 from wordstats.language_info import LanguageInfo
-from wordstats.loading_from_hermit import load_language_from_hermit, path_of_hermit_language_file
+from wordstats.file_handling.loading_from_hermit import load_language_from_hermit, path_of_hermit_language_file
 from wordstats.word_info import UnknownWordInfo
 from wordstats.word_stats import Word
 

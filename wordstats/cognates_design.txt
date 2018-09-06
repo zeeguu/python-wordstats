@@ -1,0 +1,25 @@
+
+Translate:
+    Responsible for creating translations between two pair of languages.
+    Either from Hermit frequency word data (function generate_translations_from_hermit) or
+    from a given text (generate_translations).
+    Translations can be stored/loaded in/from textfile (candidates.txt) or database.
+    See scripts translate_article and parse_translation_batch for an example.
+
+CognateEvaluation:
+    Responsible for evaluating word pairs with same semantics for cognativity given a distance_class.
+    Either from a Translation object with stored words (generate_cognates) or
+    given a word pair (evaluate_wordpair).
+    Cognates are stored/loaded in/form textfile or database. The evaluated word pairs stored in
+    textfile are split in whitelist.txt and blacklist.txt meaning cognate and non-cognate respectively.
+    For an example see script cognate_automatic_evaluation.
+
+EditDistance:
+    Three methods are implemented which implement different ways of measuring a distance between two
+    word pairs. edit_distance is the recommended distance measure which measured the minimum amount of
+    deletions/substitutions/insertions needed to transform one word to another and normalizes the
+    number of edits by the length of the largest word.
+    edit_distance functions can be given an optional list of translations rules (rules.txt) which
+    describes a substitution of strings and does not contribute to length.
+    To be used in conjuction with CognateEvaluation where first the distance function is created
+    to your liking and then given to CognateEvaluation.

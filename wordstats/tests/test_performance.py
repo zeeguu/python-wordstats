@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from wordstats import LanguageInfo
-from wordstats.loading_from_hermit import path_of_hermit_language_file
+from wordstats.file_handling.loading_from_hermit import path_of_hermit_language_file
 from wordstats.tests.test_basics import SimpleTests
 
 
