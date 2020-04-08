@@ -1,4 +1,4 @@
-db_uri = 'sqlite:///wordinfo.db'
+db_uri = 'sqlite:////var/tmp/wordinfo.db'
 
 # for mysql, we want to declare the default character encoding
 # for comm. with the db
