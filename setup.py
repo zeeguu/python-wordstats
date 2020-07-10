@@ -16,7 +16,8 @@ def package_files(directory):
     for (path, directories, filenames) in os.walk(directory):
         for filename in filenames:
             if filename.endswith(".txt"):
-                paths.append(os.path.join('..', path, filename))
+                paths.append(os.path.join(path, filename))
+    print(paths)
     return paths
 
 
@@ -28,19 +29,18 @@ with open('README.rst') as f:
 setuptools.setup(
     name="wordstats",
     packages=setuptools.find_packages(),
-    version="1.0.4",
+    version="1.0.5",
     license="MIT",
     description="Multilingual word frequency statistics for Python based on subtitles corpora",
     long_description=long_description,
-    long_description_content_type='text/markdown',
     author="Mircea Lungu",
     author_email="me@mir.lu",
     url="https://github.com/zeeguu-ecosystem/Python-Wordstats",
-    download_url="https://github.com/zeeguu-ecosystem/Python-Wordstats/archive/v_1.0.4.tar.gz",
+    download_url="https://github.com/zeeguu-ecosystem/Python-Wordstats/archive/v_1.0.5.tar.gz",
     include_package_data=True,
     zip_safe=False,
     keywords="natural language processing, multilingual",
-    package_data={'': extra_files},
+    package_data={'language_data': extra_files},
     install_requires=("configobj",
                       "sqlalchemy"),
     classifiers=[
