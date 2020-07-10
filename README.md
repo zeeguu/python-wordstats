@@ -1,3 +1,4 @@
+![](https://api.travis-ci.org/zeeguu-ecosystem/Python-Wordstats.svg?branch=master&status=passed)
 
 Statistics about word frequencies in different languages based on a corpus of 
 movie subtitles as extracted by the Frequency Words (https://github.com/hermitdave/FrequencyWords) project.
