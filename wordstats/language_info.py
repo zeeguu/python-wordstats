@@ -9,12 +9,28 @@ from .utils.mem_footprint import total_size
 from .base_service import BaseService, Base
 from .config import MAX_WORDS
 from .metrics_computers import *
+import logging as log
 
 
 class LanguageInfo(object):
     def __init__(self, language_id):
         self.language_id = language_id
         self.word_info_dict = dict()
+
+    @classmethod
+    def load(cls, language_code):
+        from wordstats.loading_from_hermit import load_language_from_hermit
+
+        log.info(f"loading {language_code} from DB")
+        lang = LanguageInfo.load_from_db(language_code)
+
+        if len(lang.all_words()) == 0:
+            log.info(f"loading {language_code} from file")
+            lang = load_language_from_hermit(language_code)
+            log.info(f"caching {language_code} to DB")
+            lang.cache_to_db()
+
+        return lang
 
     def get(self, word):
         """

@@ -46,7 +46,7 @@ class WordInfo(SimplifiedQuery, Base):
         self.rank = rank
 
     def __str__(self):
-        result = "info: {0} ({1}, freq: {2}, imp: {3}, diff: {4}, rank: {5}, klevel: {6})".format(
+        result = "{0}: (lang: {1}, rank: {5}, freq: {2}, imp: {3}, diff: {4}, klevel: {6})".format(
             self.word,
             self.language_id,
             self.frequency,
@@ -55,7 +55,6 @@ class WordInfo(SimplifiedQuery, Base):
             self.rank,
             self.klevel)
 
-        result = result.encode(stdout.encoding)
         return result
 
     @classmethod
