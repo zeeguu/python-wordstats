@@ -63,3 +63,5 @@ The `common_words()` function returns a list.
 ### Installation
 
     pip install wordstats
+
+.
