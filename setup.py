@@ -35,7 +35,7 @@ setuptools.setup(
     author="Mircea Lungu",
     author_email="me@mir.lu",
     url="https://github.com/zeeguu-ecosystem/Python-Wordstats",
-    download_url="https://github.com/zeeguu-ecosystem/Python-Wordstats/archive/v_1.0.tar.gz",
+    download_url="https://github.com/zeeguu-ecosystem/Python-Wordstats/archive/v_1.0.1.tar.gz",
     include_package_data=True,
     zip_safe=False,
     keywords="natural language processing, multilingual",
