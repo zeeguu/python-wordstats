@@ -22,15 +22,29 @@ extra_files = package_files('wordstats/language_data/')
 
 setuptools.setup(
     name="wordstats",
-    version="0.1",
     packages=setuptools.find_packages(),
-    include_package_data=True,
-    zip_safe=False,
+    version="1.0",
+    license="MIT",
+    description="Multilingual word frequency statistics for Python based on subtitles corpora",
     author="Mircea Lungu",
     author_email="me@mir.lu",
-    description="Python Class for Word Statistics ",
-    keywords="second language acquisition api",
+    url="https://github.com/zeeguu-ecosystem/Python-Wordstats",
+    download_url="https://github.com/zeeguu-ecosystem/Python-Wordstats/archive/v_1.0.tar.gz",
+    include_package_data=True,
+    zip_safe=False,
+    keywords="natural language processing, multilingual",
     package_data={'': extra_files},
     install_requires=("configobj",
-                      "sqlalchemy")
+                      "sqlalchemy"),
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Text Processing',
+        'License :: OSI Approved :: MIT License',  # Again, pick a license
+        'Programming Language :: Python :: 3',  # Specify which pyhton versions that you want to support
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+    ],
+
 )
