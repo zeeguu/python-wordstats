@@ -4,11 +4,12 @@
 # using it
 
 
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf8 -*-
 import os
 
 import setuptools
+
 
 def package_files(directory):
     paths = []
@@ -18,14 +19,19 @@ def package_files(directory):
                 paths.append(os.path.join('..', path, filename))
     return paths
 
+
 extra_files = package_files('wordstats/language_data/')
+
+with open('README.md') as f:
+    long_description = f.read()
 
 setuptools.setup(
     name="wordstats",
     packages=setuptools.find_packages(),
-    version="1.0",
+    version="1.0.1",
     license="MIT",
     description="Multilingual word frequency statistics for Python based on subtitles corpora",
+    long_description=long_description,
     author="Mircea Lungu",
     author_email="me@mir.lu",
     url="https://github.com/zeeguu-ecosystem/Python-Wordstats",
