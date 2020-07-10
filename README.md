@@ -1,5 +1,5 @@
 Statistics about word frequency in different languages based on a corpus of 
-movie subtitles as extracted by the [Frequency Words](https://github.com/hermitdave/FrequencyWords) project.
+movie subtitles as extracted by the Frequency Words (https://github.com/hermitdave/FrequencyWords) project.
 
 Currently supported languages: 
 
