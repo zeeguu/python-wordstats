@@ -2,7 +2,7 @@
 Statistics about word frequencies in different languages based on a corpus of 
 movie subtitles as extracted by the Frequency Words (https://github.com/hermitdave/FrequencyWords) project.
 
-Currently supported languages: 
+Currently supported languages (or language codes to be more precise :): 
 
     "da", "de", "el", "en", "es", "fr", "it", "nl", "no", "pl", "pt", "ro", "zh-CN" 
 
@@ -64,5 +64,3 @@ The `common_words()` function returns a list.
 ### Installation
 
     pip install wordstats
-
-.
