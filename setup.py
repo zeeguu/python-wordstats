@@ -23,20 +23,21 @@ def package_files(directory):
 
 extra_files = package_files('wordstats/language_data/')
 
-with open('README.rst') as f:
+with open('README.md') as f:
     long_description = f.read()
 
 setuptools.setup(
     name="wordstats",
     packages=setuptools.find_packages(),
-    version="1.0.5",
+    version="1.0.6",
     license="MIT",
     description="Multilingual word frequency statistics for Python based on subtitles corpora",
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author="Mircea Lungu",
     author_email="me@mir.lu",
     url="https://github.com/zeeguu-ecosystem/Python-Wordstats",
-    download_url="https://github.com/zeeguu-ecosystem/Python-Wordstats/archive/v_1.0.5.tar.gz",
+    download_url="https://github.com/zeeguu-ecosystem/Python-Wordstats/archive/v_1.0.6.tar.gz",
     include_package_data=True,
     zip_safe=False,
     keywords="natural language processing, multilingual",
