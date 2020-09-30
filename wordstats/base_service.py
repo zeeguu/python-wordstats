@@ -11,7 +11,11 @@ Base = declarative_base()
 class BaseService(object):
     # assumes the existence of a ./wordranks/config.cfg
 
-    engine = create_engine(db_uri, encoding='utf-8', connect_args={'check_same_thread': False})
+    engine = create_engine(db_uri, encoding='utf-8',
+
+                           # https://stackoverflow.com/questions/48218065/programmingerror-sqlite-objects-created-in-a-thread-can-only-be-used-in-that-sa
+                           connect_args={'check_same_thread': False}
+                           )
     Session = sessionmaker(bind=engine)
     session = Session()
 
