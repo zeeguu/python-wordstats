@@ -11,7 +11,7 @@ Base = declarative_base()
 class BaseService(object):
     # assumes the existence of a ./wordranks/config.cfg
 
-    engine = create_engine(db_uri, encoding='utf-8')
+    engine = create_engine(db_uri, encoding='utf-8', connect_args={'check_same_thread': False})
     Session = sessionmaker(bind=engine)
     session = Session()
 
