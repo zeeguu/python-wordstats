@@ -2,6 +2,7 @@ import codecs
 import os
 from datetime import datetime
 
+import sqlalchemy
 from sqlalchemy import Table
 
 from .word_info import WordInfo, UnknownWordInfo
@@ -22,9 +23,15 @@ class LanguageInfo(object):
         from wordstats.loading_from_hermit import load_language_from_hermit
 
         log.info(f"loading {language_code} from DB")
-        lang = LanguageInfo.load_from_db(language_code)
+
+        try:
+            lang = LanguageInfo.load_from_db(language_code)
+        except sqlalchemy.exc.PendingRollbackError:
+            BaseService.session.rollback()
+            lang = LanguageInfo.load_from_db(language_code)
 
         if len(lang.all_words()) == 0:
+
             log.info(f"loading {language_code} from file")
             lang = load_language_from_hermit(language_code)
             log.info(f"caching {language_code} to DB")
