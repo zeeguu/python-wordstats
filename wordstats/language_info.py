@@ -27,6 +27,7 @@ class LanguageInfo(object):
         try:
             lang = LanguageInfo.load_from_db(language_code)
         except sqlalchemy.exc.PendingRollbackError:
+            print("Rolling back session in WordStats to clear a previous race condition")
             BaseService.session.rollback()
             lang = LanguageInfo.load_from_db(language_code)
 
