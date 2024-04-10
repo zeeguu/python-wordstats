@@ -196,9 +196,9 @@ class LanguageInfo(object):
         return b - a
 
     @classmethod
-    def load_in_memory_for(cls, language_codes):
+    def load_in_memory_for(cls, language_codes, use_sqlite_cache=False):
         from .word_stats import Word
 
         for each in language_codes:
-            Word.stats_dict[each] = cls.load(each)
+            Word.stats_dict[each] = cls.load(each, use_sqlite_cache)
 

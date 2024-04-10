@@ -29,7 +29,7 @@ with open('README.md') as f:
 setuptools.setup(
     name="wordstats",
     packages=setuptools.find_packages(),
-    version="1.0.9",
+    version="1.0.10",
     license="MIT",
     description="Multilingual word frequency statistics for Python based on subtitles corpora",
     long_description=long_description,
