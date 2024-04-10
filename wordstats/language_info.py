@@ -1,5 +1,6 @@
 import codecs
 import os
+import sqlite3
 from datetime import datetime
 
 import sqlalchemy
@@ -19,8 +20,11 @@ class LanguageInfo(object):
         self.word_info_dict = dict()
 
     @classmethod
-    def load(cls, language_code):
+    def load(cls, language_code, use_sqlite_cache=False):
         from wordstats.loading_from_hermit import load_language_from_hermit
+
+        if not use_sqlite_cache:
+            return load_language_from_hermit(language_code)
 
         log.info(f"loading {language_code} from DB")
 
@@ -36,7 +40,11 @@ class LanguageInfo(object):
             log.info(f"loading {language_code} from file")
             lang = load_language_from_hermit(language_code)
             log.info(f"caching {language_code} to DB")
-            lang.cache_to_db()
+            try:
+                lang.cache_to_db()
+            except sqlite3.IntegrityError:
+                # If this happens, we've very likely had a race condition
+                BaseService.session.rollback()
 
         return lang
 
@@ -186,3 +194,11 @@ class LanguageInfo(object):
             new_registry.print_load_stats(a, b)
 
         return b - a
+
+    @classmethod
+    def load_in_memory_for(cls, language_codes):
+        from .word_stats import Word
+
+        for each in language_codes:
+            Word.stats_dict[each] = cls.load(each)
+
