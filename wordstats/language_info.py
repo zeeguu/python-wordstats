@@ -9,7 +9,7 @@ from sqlalchemy import Table
 from .word_info import WordInfo, UnknownWordInfo
 from .utils.mem_footprint import total_size
 from .base_service import BaseService, Base
-from .config import MAX_WORDS
+from .config import MIN_OCCURRENCE_COUNT, MAX_WORDS
 from .metrics_computers import *
 import logging as log
 
@@ -105,6 +105,10 @@ class LanguageInfo(object):
                 word = word_and_freq_array[0]
                 occurrences = int(word_and_freq_array[1])
 
+                # Skip words below minimum occurrence count (likely typos/noise)
+                if occurrences < MIN_OCCURRENCE_COUNT:
+                    continue
+
                 frequency = compute_frequency(occurrences)
                 difficulty = compute_difficulty(word_rank)
                 importance = compute_importance(occurrences)
@@ -112,7 +116,8 @@ class LanguageInfo(object):
 
                 word_rank += 1
 
-                if word_rank <= MAX_WORDS:
+                # Include all words above MIN_OCCURRENCE_COUNT (MAX_WORDS is now optional)
+                if MAX_WORDS is None or word_rank <= MAX_WORDS:
 
                     if word.lower() not in new_registry.word_info_dict:
                         r = WordInfo(
