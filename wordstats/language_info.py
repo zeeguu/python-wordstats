@@ -21,10 +21,14 @@ class LanguageInfo(object):
 
     @classmethod
     def load(cls, language_code, use_sqlite_cache=False):
-        """ A disk-backed LanguageStore (see disk_store.py): same get / [] /
-        all_words interface, but the data sits in the OS page cache, shared
-        across processes, instead of ~270 bytes per word in this one.
-        load_from_file() still gives the fully in-memory version. """
+        """ By default a disk-backed LanguageStore (see disk_store.py): same
+        get / [] / all_words interface, but the data sits in the OS page cache,
+        shared across processes, instead of ~270 bytes per word in this one.
+        load_from_file() still gives the fully in-memory version.
+
+        use_sqlite_cache predates the store and does NOT select it: True means
+        the older SQLAlchemy `word_info` table (config.db_uri), loaded into
+        memory as WordInfo rows. """
         from wordstats.loading_from_hermit import load_language_from_hermit, path_of_hermit_language_file
         from wordstats.disk_store import LanguageStore, ensure_store, package_directory
 

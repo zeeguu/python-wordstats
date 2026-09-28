@@ -67,3 +67,19 @@ class SimpleTests(TestCase):
         assert "mutter" in store
         assert isinstance(store.get("sparalicious"), UnknownWordInfo)
         assert store.random_word() in store
+
+    def test_random_word_positions_are_dense(self):
+        # ranks have gaps (lowercase duplicates), positions must not, or the
+        # word after a gap would be drawn more often
+        store = LanguageInfo.load("de")
+        (count, lo, hi), = store._query("SELECT COUNT(*), MIN(position), MAX(position) FROM words")
+        assert (lo, hi) == (1, count) == (1, len(store))
+
+    def test_store_name_follows_content_not_mtime(self):
+        import os
+        from wordstats.disk_store import _store_path, package_directory
+        from wordstats.loading_from_hermit import path_of_hermit_language_file
+        source = package_directory + os.sep + path_of_hermit_language_file("da")
+        before = _store_path(source, "da")
+        os.utime(source)  # what a reinstall of an unchanged list does
+        assert _store_path(source, "da") == before

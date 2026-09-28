@@ -58,16 +58,23 @@ def _cache_folder():
 
 
 def _store_path(source_file, lang_code):
-    stat = os.stat(source_file)
-    key = f"{FORMAT_VERSION}|{MIN_OCCURRENCE_COUNT}|{MAX_WORDS}|{stat.st_size}|{stat.st_mtime_ns}"
-    digest = hashlib.sha1(key.encode()).hexdigest()[:12]
+    # Hash the list's bytes, not its mtime: a reinstall of an unchanged list
+    # (every container start in Docker) must not rebuild, and an edited one
+    # must. ~10ms per list.
+    digest = hashlib.sha1(f"{FORMAT_VERSION}|{MIN_OCCURRENCE_COUNT}|{MAX_WORDS}|".encode())
+    with open(source_file, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            digest.update(chunk)
+    digest = digest.hexdigest()[:12]
     return os.path.join(_cache_folder(), f"{lang_code}-{digest}.sqlite")
 
 
 def _rows_from_frequency_file(source_file):
-    """(word, rank, occurrences) exactly as LanguageInfo.load_from_file keeps
-    them: ranks count every word above the threshold, and when two words
-    lowercase to the same string the first (more frequent) one wins."""
+    """(position, word, rank, occurrences) with word, rank and occurrences
+    exactly as LanguageInfo.load_from_file keeps them: ranks count every word
+    above the threshold, and when two words lowercase to the same string the
+    first (more frequent) one wins. That leaves gaps in the ranks, so
+    position numbers the kept words 1..N for random_word()."""
     seen = set()
     word_rank = 0
     with codecs.open(source_file, encoding="utf8") as words_file:
@@ -84,7 +91,7 @@ def _rows_from_frequency_file(source_file):
             if word in seen:
                 continue
             seen.add(word)
-            yield word, word_rank, occurrences
+            yield len(seen), word, word_rank, occurrences
 
 
 def _build(source_file, path):
@@ -95,14 +102,14 @@ def _build(source_file, path):
         con.execute("PRAGMA journal_mode=OFF")
         con.execute("PRAGMA synchronous=OFF")
         con.execute(
-            "CREATE TABLE words (word TEXT PRIMARY KEY, rank INTEGER NOT NULL,"
-            " occurrences INTEGER NOT NULL) WITHOUT ROWID"
+            "CREATE TABLE words (word TEXT PRIMARY KEY, position INTEGER NOT NULL,"
+            " rank INTEGER NOT NULL, occurrences INTEGER NOT NULL) WITHOUT ROWID"
         )
         con.executemany(
-            "INSERT INTO words VALUES (?, ?, ?)", _rows_from_frequency_file(source_file)
+            "INSERT INTO words (position, word, rank, occurrences) VALUES (?, ?, ?, ?)",
+            _rows_from_frequency_file(source_file),
         )
-        # random_word() picks a rank and takes the next word at or after it
-        con.execute("CREATE INDEX words_by_rank ON words (rank)")
+        con.execute("CREATE UNIQUE INDEX words_by_position ON words (position)")
         con.commit()
         con.execute("VACUUM")
         con.close()
@@ -130,8 +137,7 @@ def ensure_store(source_file, lang_code):
 
 
 def _remove_older_builds(path, lang_code):
-    # a reinstall (new mtime) or a new format builds a new file; drop the old
-    # ones. Processes that still have one open keep reading it until they close.
+    # a changed list or format builds a new file; drop the old ones. Processes that still have one open keep reading it until they close.
     folder = os.path.dirname(path)
     for old in glob.glob(os.path.join(folder, f"{lang_code}-*.sqlite")):
         if old != path:
@@ -150,21 +156,25 @@ class LanguageStore(object):
     def __init__(self, language_id, path):
         self.language_id = language_id
         self.path = path
-        self._local = threading.local()
-        self._max_rank = None
+        # One connection per process, shared by all its threads: a gunicorn
+        # worker has 15, and a connection per thread per language meant 240
+        # connections, each with its own mmap and page cache (~1GB measured).
+        # Lookups take microseconds, so serializing them costs nothing.
+        self._lock = threading.Lock()
+        self._con = None
+        self._pid = None
+        self._len = None
 
-    def _connection(self):
-        # one connection per thread, and a fresh one after a fork (a SQLite
-        # connection must never be used across processes)
-        pid = os.getpid()
-        if getattr(self._local, "pid", None) != pid:
-            con = sqlite3.connect(
-                f"file:{self.path}?mode=ro&immutable=1", uri=True, check_same_thread=False
-            )
-            con.execute(f"PRAGMA mmap_size={self.MMAP_SIZE}")
-            self._local.con = con
-            self._local.pid = pid
-        return self._local.con
+    def _query(self, sql, params=()):
+        with self._lock:
+            # a SQLite connection must never be used across a fork
+            if self._pid != os.getpid():
+                self._con = sqlite3.connect(
+                    f"file:{self.path}?mode=ro&immutable=1", uri=True, check_same_thread=False
+                )
+                self._con.execute(f"PRAGMA mmap_size={self.MMAP_SIZE}")
+                self._pid = os.getpid()
+            return self._con.execute(sql, params).fetchall()
 
     def _entry(self, word, rank, occurrences):
         # load_from_file derives difficulty and klevel from the rank before
@@ -181,46 +191,29 @@ class LanguageStore(object):
 
     def get(self, word):
         word = word.lower()
-        row = (
-            self._connection()
-            .execute("SELECT rank, occurrences FROM words WHERE word = ?", (word,))
-            .fetchone()
-        )
-        if row is None:
+        rows = self._query("SELECT rank, occurrences FROM words WHERE word = ?", (word,))
+        if not rows:
             return UnknownWordInfo()
-        return self._entry(word, *row)
+        return self._entry(word, *rows[0])
 
     def __getitem__(self, key):
         return self.get(key)
 
     def __contains__(self, word):
-        return (
-            self._connection()
-            .execute("SELECT 1 FROM words WHERE word = ?", (word.lower(),))
-            .fetchone()
-            is not None
-        )
+        return bool(self._query("SELECT 1 FROM words WHERE word = ?", (word.lower(),)))
 
     def __len__(self):
-        return self._connection().execute("SELECT COUNT(*) FROM words").fetchone()[0]
+        # immutable file, so count once
+        if self._len is None:
+            self._len = self._query("SELECT COUNT(*) FROM words")[0][0]
+        return self._len
 
     def all_words(self):
         """Every word, most frequent first. Materializes the whole list, so
         prefer random_word() when a few words are enough."""
-        return [
-            w for (w,) in self._connection().execute("SELECT word FROM words ORDER BY rank")
-        ]
+        return [w for (w,) in self._query("SELECT word FROM words ORDER BY rank")]
 
     def random_word(self):
-        if self._max_rank is None:
-            self._max_rank = (
-                self._connection().execute("SELECT MAX(rank) FROM words").fetchone()[0]
-            )
-        rank = random.randint(1, self._max_rank)
-        return (
-            self._connection()
-            .execute(
-                "SELECT word FROM words WHERE rank >= ? ORDER BY rank LIMIT 1", (rank,)
-            )
-            .fetchone()[0]
-        )
+        """Uniform over the words, like random.choice(all_words())."""
+        position = random.randint(1, len(self))
+        return self._query("SELECT word FROM words WHERE position = ?", (position,))[0][0]

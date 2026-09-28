@@ -8,7 +8,10 @@
   The file is built once from the frequency list (~8s for all 16 languages,
   cross-process locked, atomically renamed) and read through mmap, so its pages
   sit in the OS page cache, shared by every process. All 16 languages go from
-  ~1.1GB to ~6MB per process; a lookup takes ~2us.
+  ~1.1GB to ~6MB per process; a lookup takes ~2us. Each process keeps one
+  connection per language, shared by its threads (per-thread connections
+  cost ~1GB under 15 threads). Files are named by a hash of the list's
+  bytes, so reinstalling an unchanged list does not rebuild.
 - Every entry is identical to the in-memory loader's (tested word by word for
   all languages). `load_from_file()` still returns the in-memory version.
 
