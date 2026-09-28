@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from wordstats.language_info import LanguageInfo
 from wordstats.loading_from_hermit import load_language_from_hermit, path_of_hermit_language_file
-from wordstats.word_info import UnknownWordInfo
+from wordstats.word_info import UnknownWordInfo, WordInfo
 from wordstats.word_stats import Word
 
 
@@ -15,6 +15,12 @@ class SimpleTests(TestCase):
         word = german.get("wunderbar")
         assert word.difficulty == 0.02
         assert word.klevel == 2
+
+    def test_file_entries_are_not_orm_objects(self):
+        # ORM instances cost ~1.2KB each; with ~3M words that was ~4GB per process
+        entry = load_language_from_hermit("da").get("hus")
+        assert not isinstance(entry, WordInfo)
+        assert entry.rank < 1000
 
     @classmethod
     def test_caching_to_db(self):

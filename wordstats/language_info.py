@@ -6,7 +6,7 @@ from datetime import datetime
 import sqlalchemy
 from sqlalchemy import Table
 
-from .word_info import WordInfo, UnknownWordInfo
+from .word_info import WordInfo, UnknownWordInfo, CompactWordInfo
 from .utils.mem_footprint import total_size
 from .base_service import BaseService, Base
 from .config import MIN_OCCURRENCE_COUNT, MAX_WORDS
@@ -119,16 +119,18 @@ class LanguageInfo(object):
                 # Include all words above MIN_OCCURRENCE_COUNT (MAX_WORDS is now optional)
                 if MAX_WORDS is None or word_rank <= MAX_WORDS:
 
-                    if word.lower() not in new_registry.word_info_dict:
-                        r = WordInfo(
-                            word.lower(),
+                    # one lowercased string shared by the dict key and the entry
+                    word = word.lower()
+                    if word not in new_registry.word_info_dict:
+                        r = CompactWordInfo(
+                            word,
                             lang_code,
                             frequency,
                             difficulty,
                             importance,
                             word_rank,
                             klevel)
-                        new_registry.word_info_dict[word.lower()] = r
+                        new_registry.word_info_dict[word] = r
 
         return new_registry
 
@@ -168,6 +170,8 @@ class LanguageInfo(object):
 
         clear_corresponding_entries_in_db(self)
         for word_info in list(self.word_info_dict.values()):
+            if isinstance(word_info, CompactWordInfo):
+                word_info = word_info.to_word_info()
             BaseService.session.add(word_info)
         BaseService.session.commit()
 

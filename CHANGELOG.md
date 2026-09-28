@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.1] - 2026-09-28
+
+### Performance
+- Words loaded from the frequency files are now plain slotted `CompactWordInfo`
+  objects instead of SQLAlchemy-mapped `WordInfo` rows. The ORM instance state
+  made each entry ~1.2KB; it is now ~280B. All 15 languages loaded in one
+  process drop from ~3.7GB to ~0.9GB. Returned values are unchanged.
+- `WordInfo` is still what `load_from_db` returns and what `cache_to_db` writes.
+
 ## [1.1.0] - 2025-10-22
 
 ### Changed

@@ -19,6 +19,34 @@ class UnknownWordInfo(object):
         self.rank = 100000
 
 
+class CompactWordInfo(object):
+    """ In-memory word info, as loaded from the frequency files.
+
+    Same attributes as WordInfo, but a plain slotted object instead of a
+    SQLAlchemy-mapped one: the ORM instance state made each entry ~1.2KB,
+    and with the full 2018 lists (~3M words across languages) a process
+    holding all languages sat at ~4GB. WordInfo is only needed for the
+    sqlite cache (see LanguageInfo.cache_to_db). """
+
+    __slots__ = ("word", "language_id", "frequency", "importance", "difficulty", "rank", "klevel")
+
+    def __init__(self, word, language_id, frequency, difficulty, importance, rank, klevel):
+        self.word = word
+        self.language_id = language_id
+        self.frequency = frequency
+        self.importance = importance
+        self.difficulty = difficulty
+        self.klevel = klevel
+        self.rank = rank
+
+    def to_word_info(self):
+        return WordInfo(self.word, self.language_id, self.frequency, self.difficulty,
+                        self.importance, self.rank, self.klevel)
+
+    def __str__(self):
+        return WordInfo.__str__(self)
+
+
 class WordInfo(SimplifiedQuery, Base):
     __tablename__ = 'word_info'
     __table_args__ = {'mysql_collate': 'utf8_bin'}
