@@ -22,6 +22,9 @@ class SimpleTests(TestCase):
         assert not isinstance(entry, WordInfo)
         assert entry.rank < 1000
 
+    def test_bulgarian(self):
+        assert Word.stats("книга", "bg").rank < 2000
+
     @classmethod
     def test_caching_to_db(self):
         german = LanguageInfo.load_from_file(path_of_hermit_language_file("de"), "de")

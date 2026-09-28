@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.2] - 2026-09-28
+
+### Added
+- Bulgarian (`bg`): hermitdave 2018 list, trimmed at MIN_OCCURRENCE_COUNT like
+  the others (230,825 words, ~69MB in memory).
+
 ## [1.1.1] - 2026-09-28
 
 ### Performance
