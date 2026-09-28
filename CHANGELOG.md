@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.2.0] - 2026-09-28
+
+### Performance
+- `LanguageInfo.load()` (and so `Word.stats()`) now serves each language from a
+  read-only SQLite file instead of building ~170k Python objects per language.
+  The file is built once from the frequency list (~8s for all 16 languages,
+  cross-process locked, atomically renamed) and read through mmap, so its pages
+  sit in the OS page cache, shared by every process. All 16 languages go from
+  ~1.1GB to ~6MB per process; a lookup takes ~2us.
+- Every entry is identical to the in-memory loader's (tested word by word for
+  all languages). `load_from_file()` still returns the in-memory version.
+
+### Added
+- `LanguageStore.random_word()`, so callers that need a few random words don't
+  have to materialize `all_words()`.
+- `WORDSTATS_CACHE_DIR` sets where the SQLite files go (default: inside the
+  package, or the temp dir if that is not writable).
+
 ## [1.1.2] - 2026-09-28
 
 ### Added

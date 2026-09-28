@@ -6,3 +6,4 @@ dist
 *.egg-info
 wordinfo.db
 venv/*
+wordstats/language_data/sqlite

@@ -21,10 +21,16 @@ class LanguageInfo(object):
 
     @classmethod
     def load(cls, language_code, use_sqlite_cache=False):
-        from wordstats.loading_from_hermit import load_language_from_hermit
+        """ A disk-backed LanguageStore (see disk_store.py): same get / [] /
+        all_words interface, but the data sits in the OS page cache, shared
+        across processes, instead of ~270 bytes per word in this one.
+        load_from_file() still gives the fully in-memory version. """
+        from wordstats.loading_from_hermit import load_language_from_hermit, path_of_hermit_language_file
+        from wordstats.disk_store import LanguageStore, ensure_store, package_directory
 
         if not use_sqlite_cache:
-            return load_language_from_hermit(language_code)
+            source_file = package_directory + os.sep + path_of_hermit_language_file(language_code)
+            return LanguageStore(language_code, ensure_store(source_file, language_code))
 
         log.info(f"loading {language_code} from DB")
 

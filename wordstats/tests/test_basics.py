@@ -44,3 +44,26 @@ class SimpleTests(TestCase):
         sparalicious_info = Word.stats("sparalicious", "de")
         assert isinstance(sparalicious_info, UnknownWordInfo)
         assert sparalicious_info.importance == 0
+
+    def test_disk_store_matches_in_memory_load_for_every_word(self):
+        # LanguageInfo.load() now serves from SQLite; every entry must be
+        # identical to what the in-memory loader builds from the same list
+        from wordstats.config import DATA_HERMIT_FOLDER
+        import os
+        languages = sorted(os.listdir(os.path.join(os.path.dirname(__file__), "..", DATA_HERMIT_FOLDER)))
+        fields = ("word", "language_id", "frequency", "importance", "difficulty", "rank", "klevel")
+        for lang in languages:
+            in_memory = load_language_from_hermit(lang)
+            store = LanguageInfo.load(lang)
+            assert len(store) == len(in_memory.word_info_dict), lang
+            for word, expected in in_memory.word_info_dict.items():
+                actual = store.get(word)
+                for f in fields:
+                    assert getattr(actual, f) == getattr(expected, f), (lang, word, f)
+
+    def test_disk_store_lookup_is_case_insensitive_and_knows_unknowns(self):
+        store = LanguageInfo.load("de")
+        assert store.get("Mutter").rank == store.get("mutter").rank
+        assert "mutter" in store
+        assert isinstance(store.get("sparalicious"), UnknownWordInfo)
+        assert store.random_word() in store
