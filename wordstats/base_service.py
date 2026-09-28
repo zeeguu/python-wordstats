@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 from .config import db_uri
 
 # This thing will be the superclass of all our model classes
@@ -11,9 +10,9 @@ Base = declarative_base()
 class BaseService(object):
     # assumes the existence of a ./wordranks/config.cfg
 
-    engine = create_engine(db_uri+"?charset=utf8mb4",
-                           connect_args={'check_same_thread': False}
-                           )
+    # db_uri already carries the charset for mysql (config.py); sqlite has
+    # no charset option and warned about the appended one on every import
+    engine = create_engine(db_uri, connect_args={'check_same_thread': False})
     Session = sessionmaker(bind=engine)
     session = Session()
 

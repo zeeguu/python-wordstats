@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.1] - 2026-09-29
+
+### Fixed
+- Importing wordstats no longer prints two SQLAlchemy warnings (in every
+  gunicorn worker at boot): the sqlite engine URL had `?charset=utf8mb4`
+  appended, which pysqlite ignores (and which doubled the `?` for mysql, whose
+  charset config.py already sets), and `declarative_base` is now imported from
+  `sqlalchemy.orm` instead of the deprecated `sqlalchemy.ext.declarative`.
+
 ## [1.2.0] - 2026-09-28
 
 ### Performance
