@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.2] - 2026-09-30
+
+### Fixed
+- Processes importing wordstats at the same time on a fresh `wordinfo.db`
+  (e.g. gunicorn workers booting in a new container) no longer fail with
+  `table word_info already exists`. `create_all()` checks for the table and
+  then creates it, so all but one of the racing processes crashed on import,
+  which made gunicorn shut down with "Worker failed to boot". Table creation
+  now retries, and the retry's existence check sees the other process's table.
+
 ## [1.2.1] - 2026-09-29
 
 ### Fixed
