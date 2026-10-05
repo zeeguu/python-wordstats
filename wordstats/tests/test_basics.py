@@ -83,3 +83,66 @@ class SimpleTests(TestCase):
         before = _store_path(source, "da")
         os.utime(source)  # what a reinstall of an unchanged list does
         assert _store_path(source, "da") == before
+
+
+class WordfreqTests(TestCase):
+    """Word.zipf_frequency must answer exactly as wordfreq.zipf_frequency does."""
+
+    def test_every_word_of_every_list_has_wordfreqs_frequency(self):
+        import wordfreq
+        from wordfreq import available_languages, cB_to_freq
+        from wordstats.wordfreq_lists import _list_for
+
+        for language in sorted(available_languages("best")):
+            expected = wordfreq.get_frequency_dict(language)
+            words = _list_for(language)
+            stored = dict(words._file.query("SELECT word, cb FROM words"))
+            assert stored.keys() == expected.keys(), language
+            for word, freq in expected.items():
+                assert cB_to_freq(stored[word]) == freq, (language, word)
+            # one language at a time: wordfreq keeps every list it has loaded
+            wordfreq.get_frequency_dict.cache_clear()
+            wordfreq.get_frequency_list.cache_clear()
+
+    def test_zipf_frequency_matches_wordfreq(self):
+        import wordfreq
+        from wordfreq import available_languages, iter_wordlist
+
+        tricky = ["The", "don't", "c’est", "l'étude", "covid-19", "2024", "3.14", "well-known",
+                  "New York", "", "  ", "xqzvwjk", "Körperverletzung", "ŞEHİR"]
+        for language in sorted(available_languages("best")):
+            try:
+                sample = list(iter_wordlist(language))[::997] + tricky
+                expected = [wordfreq.zipf_frequency(w, language) for w in sample]
+            except Exception:
+                continue  # needs a tokenizer wordfreq's own extras provide (ja, ko, zh)
+            actual = [Word.zipf_frequency(w, language) for w in sample]
+            assert actual == expected, language
+            wordfreq.get_frequency_dict.cache_clear()
+            wordfreq.get_frequency_list.cache_clear()
+
+    def test_language_codes_match_like_wordfreqs(self):
+        import wordfreq
+
+        assert Word.zipf_frequency("hus", "no") == wordfreq.zipf_frequency("hus", "nb") > 4
+        with self.assertRaises(LookupError):
+            Word.zipf_frequency("word", "xx")
+
+    def test_builds_without_loading_the_whole_list(self):
+        # wordfreq.read_cBpack holds the whole list in memory; building streams it
+        import os
+        import tempfile
+        from unittest.mock import patch
+
+        import wordfreq
+        from wordstats import wordfreq_lists
+
+        expected = wordfreq.zipf_frequency("retssagen", "da")
+        with tempfile.TemporaryDirectory() as folder, \
+                patch.dict(os.environ, {"WORDSTATS_CACHE_DIR": folder}), \
+                patch.dict(wordfreq_lists._lists, clear=True), \
+                patch.object(wordfreq, "read_cBpack", side_effect=AssertionError("loaded the whole list")):
+            assert Word.zipf_frequency("retssagen", "da") == expected
+            assert [f for f in os.listdir(folder) if f.endswith(".sqlite")] == [
+                os.path.basename(wordfreq_lists._lists[wordfreq_lists.source_file("da")]._file.path)
+            ]

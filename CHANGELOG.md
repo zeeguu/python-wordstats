@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.3.0] - 2026-10-06
+
+### Added
+- `Word.zipf_frequency(word, language)`: how common a word is according to
+  [wordfreq](https://github.com/rspeer/wordfreq)'s lists, which combine many
+  sources (Wikipedia, subtitles, news, books, web text, social media) where
+  `Word.stats()` uses subtitles only. Same answer as `wordfreq.zipf_frequency`,
+  checked for every word of all 42 of its lists, but each list is served from a
+  read-only SQLite file like wordstats' own, instead of from a dict that
+  wordfreq keeps per process (17 languages: +538 MB per process with wordfreq,
+  +5 MB here). Building a file streams the list, so the process that builds it
+  does not keep it in memory either. Install with `pip install 'wordstats[wordfreq]'`.
+
+### Changed
+- The SQLite file machinery (cache folder, content-hash names, build lock,
+  atomic rename, one connection per process) moved from `disk_store.py` to
+  `sqlite_file.py`, shared by both kinds of list. Files built by 1.2.x keep
+  their names and are not rebuilt.
+
+### Fixed
+- The package no longer ships the SQLite files the tests built before packaging
+  (1.2.2's wheel carried all 16, 93 MB; 1.3.0's is 19 MB). They are built on
+  first use, or found in `WORDSTATS_CACHE_DIR`.
+
 ## [1.2.2] - 2026-09-30
 
 ### Fixed

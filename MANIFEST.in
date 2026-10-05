@@ -1,1 +1,3 @@
 recursive-include wordstats/language_data/ *
+# built on first use (sqlite_file.py), not shipped: CI runs the tests, which build them, before it builds the package
+prune wordstats/language_data/sqlite
