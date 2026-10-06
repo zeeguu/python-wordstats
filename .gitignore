@@ -7,3 +7,4 @@ dist
 wordinfo.db
 venv/*
 wordstats/language_data/sqlite
+.venv

@@ -33,3 +33,23 @@ class Word(object):
             cls.stats_dict[language] = LanguageInfo.load(language)
 
         return cls.stats_dict[language][word]
+
+    @classmethod
+    def zipf_frequency(cls, word, language):
+        """
+            How common the word is according to wordfreq's lists, which
+            combine many sources (stats() is subtitles only): log10 of its
+            occurrences per billion words, so 3 is once per million and 7 is
+            "the". 0 if the list doesn't have it.
+
+            Exactly wordfreq.zipf_frequency, served from disk instead of from
+            memory; see wordfreq_lists.py. Needs: pip install 'wordstats[wordfreq]'
+
+        :param word: string
+        :param language: string, e.g. 'da'
+        :return: float
+
+        """
+        from .wordfreq_lists import zipf_frequency
+
+        return zipf_frequency(word, language)

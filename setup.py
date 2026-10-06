@@ -29,9 +29,9 @@ with open('README.md') as f:
 setuptools.setup(
     name="wordstats",
     packages=setuptools.find_packages(),
-    version="1.2.2",
+    version="1.3.0",
     license="MIT",
-    description="Multilingual word frequency statistics for Python based on subtitles corpora",
+    description="Multilingual word frequency statistics for Python, from subtitle corpora and (optionally) wordfreq",
     long_description=long_description,
     long_description_content_type='text/markdown',
     author="Mircea Lungu",
@@ -44,6 +44,9 @@ setuptools.setup(
     package_data={'language_data': extra_files},
     install_requires=("configobj",
                       "sqlalchemy"),
+    # Word.zipf_frequency. Pinned to a minor version: it repeats wordfreq's own
+    # lookup (tokenizer, token combination, rounding) on top of the SQLite file.
+    extras_require={"wordfreq": ["wordfreq>=3.1.1,<3.2"]},
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

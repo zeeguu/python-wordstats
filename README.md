@@ -61,6 +61,35 @@ The `common_words()` function returns a list.
     ...
 
 
+##### How common a word is, according to wordfreq
+
+`Word.stats()` is based on subtitles. For text like news, where subtitles call
+everyday words rare, `Word.zipf_frequency()` uses the lists of
+[wordfreq](https://github.com/rspeer/wordfreq), which combine many sources. It
+answers exactly as `wordfreq.zipf_frequency` does: log10 of the occurrences per
+billion words, so 3 is once per million and 7 is "the".
+
+    >> from wordstats import Word
+    >> Word.zipf_frequency('hus', 'da')
+    5.26
+
+Needs the `wordfreq` extra (see Installation).
+
+
+### Memory
+
+Every list, wordstats' own and wordfreq's, is built once into a read-only SQLite
+file and read through mmap, so all processes on a machine share one copy in the
+OS page cache instead of each holding its own (for all of wordstats' languages:
+~6 MB per process instead of ~1.1 GB). `WORDSTATS_CACHE_DIR` sets where the
+files go; by default inside the package, or the temp dir if that isn't writable.
+Point it at a persistent volume to build each file only once across containers.
+
+
 ### Installation
 
     pip install wordstats
+
+or, with `Word.zipf_frequency`:
+
+    pip install 'wordstats[wordfreq]'
