@@ -110,6 +110,7 @@ class WordfreqTests(TestCase):
 
         tricky = ["The", "don't", "c’est", "l'étude", "covid-19", "2024", "3.14", "well-known",
                   "New York", "", "  ", "xqzvwjk", "Körperverletzung", "ŞEHİR"]
+        compared = 0
         for language in sorted(available_languages("best")):
             try:
                 sample = list(iter_wordlist(language))[::997] + tricky
@@ -118,8 +119,10 @@ class WordfreqTests(TestCase):
                 continue  # needs a tokenizer wordfreq's own extras provide (ja, ko, zh)
             actual = [Word.zipf_frequency(w, language) for w in sample]
             assert actual == expected, language
+            compared += 1
             wordfreq.get_frequency_dict.cache_clear()
             wordfreq.get_frequency_list.cache_clear()
+        assert compared >= 39, compared  # all but ja, ko, zh
 
     def test_language_codes_match_like_wordfreqs(self):
         import wordfreq
@@ -128,21 +131,28 @@ class WordfreqTests(TestCase):
         with self.assertRaises(LookupError):
             Word.zipf_frequency("word", "xx")
 
-    def test_builds_without_loading_the_whole_list(self):
-        # wordfreq.read_cBpack holds the whole list in memory; building streams it
+    def test_building_streams_the_list(self):
+        # wordfreq.read_cBpack holds a whole list in memory (~90 MB for German),
+        # and a process does not give that back; the build reads one bucket at a time
         import os
         import tempfile
+        import tracemalloc
         from unittest.mock import patch
 
         import wordfreq
         from wordstats import wordfreq_lists
 
-        expected = wordfreq.zipf_frequency("retssagen", "da")
+        expected = wordfreq.zipf_frequency("körperverletzung", "de")
         with tempfile.TemporaryDirectory() as folder, \
                 patch.dict(os.environ, {"WORDSTATS_CACHE_DIR": folder}), \
-                patch.dict(wordfreq_lists._lists, clear=True), \
-                patch.object(wordfreq, "read_cBpack", side_effect=AssertionError("loaded the whole list")):
-            assert Word.zipf_frequency("retssagen", "da") == expected
-            assert [f for f in os.listdir(folder) if f.endswith(".sqlite")] == [
-                os.path.basename(wordfreq_lists._lists[wordfreq_lists.source_file("da")]._file.path)
-            ]
+                patch.dict(wordfreq_lists._lists, clear=True):
+            tracemalloc.start()
+            try:
+                actual = Word.zipf_frequency("körperverletzung", "de")
+                _, peak = tracemalloc.get_traced_memory()
+            finally:
+                tracemalloc.stop()
+            assert actual == expected
+            assert peak < 20 * 1024 * 1024, f"building German peaked at {peak / 1e6:.0f} MB"
+            built = wordfreq_lists._lists[wordfreq_lists.source_file("de")]._file.path
+            assert os.path.dirname(built) == folder

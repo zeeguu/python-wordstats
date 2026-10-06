@@ -6,8 +6,9 @@
 - `Word.zipf_frequency(word, language)`: how common a word is according to
   [wordfreq](https://github.com/rspeer/wordfreq)'s lists, which combine many
   sources (Wikipedia, subtitles, news, books, web text, social media) where
-  `Word.stats()` uses subtitles only. Same answer as `wordfreq.zipf_frequency`,
-  checked for every word of all 42 of its lists, but each list is served from a
+  `Word.stats()` uses subtitles only. Same answer as `wordfreq.zipf_frequency`
+  (the stored frequencies are checked for every word of all 42 of its lists, the
+  lookup on samples of 39 and on edge cases), but each list is served from a
   read-only SQLite file like wordstats' own, instead of from a dict that
   wordfreq keeps per process (17 languages: +538 MB per process with wordfreq,
   +5 MB here). Building a file streams the list, so the process that builds it
